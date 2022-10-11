@@ -1,5 +1,4 @@
 #include <stdio.h>
-#include <mpi.h>
 #include <math.h>
 
 /* Function to sort an array

@@ -3,4 +3,4 @@ project(HPC C)
 
 set(CMAKE_C_STANDARD 99)
 
-add_executable(HPC main.c)
+add_executable(HPC helloWorld.c)
