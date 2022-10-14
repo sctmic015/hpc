@@ -79,16 +79,17 @@ int main() {
     }
 
     // Implement median filter
-    int windowSize = 3;
-    int windowOffset = windowSize - 2;
+    float windowSize = 7;
+    float windowOffset =  (0.5)*windowSize - 0.5;
+    int imageSize = (int) windowSize * windowSize;
     unsigned char output[width*height*3];
     int update = 0;
     for (int i = 0; i < width; i ++){
         for (int j = 0; j < height; j ++){
             // Create set of images to smooth
-            int windowR[windowSize * windowSize];
-            int windowG[windowSize * windowSize];
-            int windowB[windowSize * windowSize];
+            int windowR[imageSize];
+            int windowG[imageSize];
+            int windowB[imageSize];
             int count = 0;
             for (int k = i - windowOffset; k <= i + windowOffset; k ++){
                 for (int l = j - windowOffset; l < j+  windowOffset; l ++){
