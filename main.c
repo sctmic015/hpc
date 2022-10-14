@@ -59,7 +59,7 @@ void printArray(int arr[], int n)
 int main() {
     int width, height, bpp;
 
-    unsigned char *img = stbi_load("C:\\Users\\micha\\CLionProjects\\HPC\\1.jpeg", &width, &height, &bpp, 3);
+    unsigned char *img = stbi_load("C:\\Users\\micha\\CLionProjects\\HPC\\highres.jpg", &width, &height, &bpp, 3);
     unsigned bytePerPixel = 3;
     for (int i = 0; i < 20; i ++){
         printf("%d ", img[i]);
@@ -69,7 +69,7 @@ int main() {
     int *b = (int *)malloc(width * height * sizeof(int));
     for (int i = 0; i < width; i ++){
         for (int j = 0; j < height; j ++){
-            unsigned char* pixelOffset = img + (j + width * i) * bytePerPixel;   //(column _ width * row)
+            unsigned char* pixelOffset = img + (j + height * i) * bytePerPixel;   //(column _ width * row)
             //printf("%d\n",pixelOffset[0]);
             *(r+i*height+j) = pixelOffset[0];
             *(g+i*height+j) = pixelOffset[1];
@@ -78,16 +78,22 @@ int main() {
 //            printf("\n");
         }
     }
-//    for (int i = 0; i < width; i ++){
-//        for (int j = 0; j < height; j ++){
-//            printf("%d\n", *(r+i*(height)+j));
+//    int counter =0;
+//    for (int i = 0; i < height; i ++){
+//        for (int j = 0; j < width; j ++){
+//            printf("%d", *(r+i*(width)+j));
+//            printf(", %d\n", counter);
+//            counter++;
 //        }
+//        printf("\n");
+//        exit(0);
 //    }
     // Implement median filter
-    long windowSize = 23;
+    long windowSize = 9;
     long windowOffset =  (0.5)*windowSize - 0.5;
     int imageSize = (int) windowSize * windowSize;
-    unsigned char output[width*height*3];  // This also needs to be malloced and shit
+    unsigned char *output = (int *)malloc(width*height*3*sizeof(unsigned char));
+    //unsigned char output[width*height*3];  // This also needs to be malloced and shit
     long long update = 0;
     int windowR[imageSize];
     int windowG[imageSize];
@@ -95,29 +101,27 @@ int main() {
     int count = 0;
     int kcopy;
     int lcopy;
-    int limit;
-    for (int i = 0; i < width; i ++){
-        for (int j = 0; j < height; j ++){
+    for (int i = 0; i < height; i ++){
+        for (int j = 0; j < width; j ++){
             // Create set of images to smooth
 
             count = 0;
             for (int k = i - windowOffset; k <= i + windowOffset; k ++){
                 for (int l = j - windowOffset; l <= j + windowOffset; l ++){
-                    limit = j+windowOffset+1;
                     kcopy = abs(k);
                     lcopy = abs(l);
-//                    if (k > 223){
-//                        kcopy = abs(k - ((k - 223)*2));
-//                    }
-//                    if (l > 223){
-//                        lcopy = abs(l - ((l - 223)*2));
-//                    }
+                    if (k > width-1){
+                        kcopy = k-5;
+                    }
+                    if (l > height-1){
+                        lcopy = k-5;
+                    }
                     //printf("%d\n", lcopy);
-                    windowR[count] = *(r+kcopy*height+lcopy);
+                    windowR[count] = *(r+kcopy*width+lcopy);
                     //*(r+i*height+j) = pixelOffset[0];
                     //printf("%d\n", windowR[count]);
-                    windowG[count] = *(g+kcopy*height+lcopy);
-                    windowB[count] = *(b+kcopy*height+lcopy);
+                    windowG[count] = *(g+kcopy*width+lcopy);
+                    windowB[count] = *(b+kcopy*width+lcopy);
                     //printf("%d\n", count);
 //                    if (count > 48){
 //                        printf("%d\n", count);
@@ -125,7 +129,7 @@ int main() {
                     count ++;
                 }
             }
-            //printf("\n");
+           // printf("%d\n", update);
             output[update++] = (char) medianFliter(windowR, windowSize * windowSize);
             output[update++] = (char) medianFliter(windowG, windowSize * windowSize);
             output[update++] = (char) medianFliter(windowB, windowSize * windowSize);
