@@ -79,30 +79,46 @@ int main() {
     }
 
     // Implement median filter
-    float windowSize = 7;
+    float windowSize = 23;
     float windowOffset =  (0.5)*windowSize - 0.5;
     int imageSize = (int) windowSize * windowSize;
     unsigned char output[width*height*3];
-    int update = 0;
+    long long update = 0;
+    int windowR[imageSize];
+    int windowG[imageSize];
+    int windowB[imageSize];
+    int count = 0;
+    int kcopy;
+    int lcopy;
     for (int i = 0; i < width; i ++){
         for (int j = 0; j < height; j ++){
             // Create set of images to smooth
-            int windowR[imageSize];
-            int windowG[imageSize];
-            int windowB[imageSize];
-            int count = 0;
+
+            count = 0;
             for (int k = i - windowOffset; k <= i + windowOffset; k ++){
-                for (int l = j - windowOffset; l < j+  windowOffset; l ++){
-                    windowR[count] = r[abs(k)][abs(l)];
-                    windowG[count] = g[abs(k)][abs(l)];
-                    windowB[count] = b[abs(k)][abs(l)];
+                for (int l = j - windowOffset; l <= j+  windowOffset; l ++){
+                    kcopy = k;
+                    lcopy = l;
+                    if (k > 223){
+                        kcopy = k - ((k - 223)*2);
+                    }
+                    if (l > 223){
+                        lcopy = l - ((l - 223)*2);
+                    }
+                    windowR[count] = r[abs(kcopy)][abs(lcopy)];
+                    windowG[count] = g[abs(kcopy)][abs(lcopy)];
+                    windowB[count] = b[abs(kcopy)][abs(lcopy)];
+                    //printf("%d\n", count);
+//                    if (count > 48){
+//                        printf("%d\n", count);
+//                    }
                     count ++;
                 }
             }
             output[update++] = (char) medianFliter(windowR, windowSize * windowSize);
             output[update++] = (char) medianFliter(windowG, windowSize * windowSize);
             output[update++] = (char) medianFliter(windowB, windowSize * windowSize);
-
+            //printf("%d\n", update);
         }
     }
 
