@@ -55,6 +55,12 @@ build CMakeFiles/HPC.dir/helloWorld.c.obj: C_COMPILER__HPC_Debug C$:/Users/micha
   OBJECT_DIR = CMakeFiles\HPC.dir
   OBJECT_FILE_DIR = CMakeFiles\HPC.dir
 
+build CMakeFiles/HPC.dir/main.c.obj: C_COMPILER__HPC_Debug C$:/Users/micha/CLionProjects/HPC/main.c || cmake_object_order_depends_target_HPC
+  DEP_FILE = CMakeFiles\HPC.dir\main.c.obj.d
+  FLAGS = -g -std=gnu99
+  OBJECT_DIR = CMakeFiles\HPC.dir
+  OBJECT_FILE_DIR = CMakeFiles\HPC.dir
+
 
 # =============================================================================
 # Link build statements for EXECUTABLE target HPC
@@ -63,7 +69,7 @@ build CMakeFiles/HPC.dir/helloWorld.c.obj: C_COMPILER__HPC_Debug C$:/Users/micha
 #############################################
 # Link the executable HPC.exe
 
-build HPC.exe: C_EXECUTABLE_LINKER__HPC_Debug CMakeFiles/HPC.dir/helloWorld.c.obj
+build HPC.exe: C_EXECUTABLE_LINKER__HPC_Debug CMakeFiles/HPC.dir/helloWorld.c.obj CMakeFiles/HPC.dir/main.c.obj
   FLAGS = -g
   LINK_LIBRARIES = -lkernel32 -luser32 -lgdi32 -lwinspool -lshell32 -lole32 -loleaut32 -luuid -lcomdlg32 -ladvapi32
   OBJECT_DIR = CMakeFiles\HPC.dir
