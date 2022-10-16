@@ -61,39 +61,23 @@ int main() {
 
     unsigned char *img = stbi_load("C:\\Users\\micha\\CLionProjects\\HPC\\highres.jpg", &width, &height, &bpp, 3);
     unsigned bytePerPixel = 3;
-    for (int i = 0; i < 20; i ++){
-        printf("%d ", img[i]);
-    }
     int *r = (int *)malloc(width * height * sizeof(int));
     int *g = (int *)malloc(width * height * sizeof(int));
     int *b = (int *)malloc(width * height * sizeof(int));
     for (int i = 0; i < width; i ++){
         for (int j = 0; j < height; j ++){
             unsigned char* pixelOffset = img + (j + height * i) * bytePerPixel;   //(column _ width * row)
-            //printf("%d\n",pixelOffset[0]);
             *(r+i*height+j) = pixelOffset[0];
             *(g+i*height+j) = pixelOffset[1];
             *(b+i*height+j) = pixelOffset[2];
-//            printf("%d" " " "%d" " " "%d", r, g, b);
-//            printf("\n");
         }
     }
-//    int counter =0;
-//    for (int i = 0; i < height; i ++){
-//        for (int j = 0; j < width; j ++){
-//            printf("%d", *(r+i*(width)+j));
-//            printf(", %d\n", counter);
-//            counter++;
-//        }
-//        printf("\n");
-//        exit(0);
-//    }
+
     // Implement median filter
     long windowSize = 9;
     long windowOffset =  (0.5)*windowSize - 0.5;
     int imageSize = (int) windowSize * windowSize;
     unsigned char *output = (int *)malloc(width*height*3*sizeof(unsigned char));
-    //unsigned char output[width*height*3];  // This also needs to be malloced and shit
     long long update = 0;
     int windowR[imageSize];
     int windowG[imageSize];
@@ -103,37 +87,26 @@ int main() {
     int lcopy;
     for (int i = 0; i < height; i ++){
         for (int j = 0; j < width; j ++){
-            // Create set of images to smooth
-
             count = 0;
             for (int k = i - windowOffset; k <= i + windowOffset; k ++){
                 for (int l = j - windowOffset; l <= j + windowOffset; l ++){
                     kcopy = abs(k);
                     lcopy = abs(l);
-                    if (k > width-1){
-                        kcopy = k-5;
+                    if (k > height-1){
+                        kcopy = (height-1) - (kcopy - (height-1));
                     }
-                    if (l > height-1){
-                        lcopy = k-5;
+                    if (l > width-1){
+                        lcopy = (width-1) - (lcopy - (width-1));
                     }
-                    //printf("%d\n", lcopy);
                     windowR[count] = *(r+kcopy*width+lcopy);
-                    //*(r+i*height+j) = pixelOffset[0];
-                    //printf("%d\n", windowR[count]);
                     windowG[count] = *(g+kcopy*width+lcopy);
                     windowB[count] = *(b+kcopy*width+lcopy);
-                    //printf("%d\n", count);
-//                    if (count > 48){
-//                        printf("%d\n", count);
-//                    }
                     count ++;
                 }
             }
-           // printf("%d\n", update);
             output[update++] = (char) medianFliter(windowR, windowSize * windowSize);
             output[update++] = (char) medianFliter(windowG, windowSize * windowSize);
             output[update++] = (char) medianFliter(windowB, windowSize * windowSize);
-            //printf("%d\n", update);
         }
     }
     free(r);
