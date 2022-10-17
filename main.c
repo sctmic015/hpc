@@ -124,6 +124,7 @@ void filterImage(char file[]){
 
 
 int main() {
+    printf("Wtf");
     time_t start, stop;
     start = time(NULL);
     //filterImage("C:/Users/micha/CLionProjects/HPC/highres.jpg");
