@@ -41,43 +41,37 @@ include CMakeFiles/rules.ninja
 
 cmake_ninja_workdir = C$:/Users/micha/CLionProjects/HPC/cmake-build-debug/
 # =============================================================================
-# Object build statements for EXECUTABLE target HPC
+# Object build statements for EXECUTABLE target openmp_test_clion
 
 
 #############################################
-# Order-only phony target for HPC
+# Order-only phony target for openmp_test_clion
 
-build cmake_object_order_depends_target_HPC: phony || CMakeFiles/HPC.dir
+build cmake_object_order_depends_target_openmp_test_clion: phony || CMakeFiles/openmp_test_clion.dir
 
-build CMakeFiles/HPC.dir/helloWorld.c.obj: C_COMPILER__HPC_Debug C$:/Users/micha/CLionProjects/HPC/helloWorld.c || cmake_object_order_depends_target_HPC
-  DEP_FILE = CMakeFiles\HPC.dir\helloWorld.c.obj.d
-  FLAGS = -g -std=gnu99
-  OBJECT_DIR = CMakeFiles\HPC.dir
-  OBJECT_FILE_DIR = CMakeFiles\HPC.dir
-
-build CMakeFiles/HPC.dir/main.c.obj: C_COMPILER__HPC_Debug C$:/Users/micha/CLionProjects/HPC/main.c || cmake_object_order_depends_target_HPC
-  DEP_FILE = CMakeFiles\HPC.dir\main.c.obj.d
-  FLAGS = -g -std=gnu99
-  OBJECT_DIR = CMakeFiles\HPC.dir
-  OBJECT_FILE_DIR = CMakeFiles\HPC.dir
+build CMakeFiles/openmp_test_clion.dir/main.c.obj: C_COMPILER__openmp_test_clion_Debug C$:/Users/micha/CLionProjects/HPC/main.c || cmake_object_order_depends_target_openmp_test_clion
+  DEP_FILE = CMakeFiles\openmp_test_clion.dir\main.c.obj.d
+  FLAGS = -g
+  OBJECT_DIR = CMakeFiles\openmp_test_clion.dir
+  OBJECT_FILE_DIR = CMakeFiles\openmp_test_clion.dir
 
 
 # =============================================================================
-# Link build statements for EXECUTABLE target HPC
+# Link build statements for EXECUTABLE target openmp_test_clion
 
 
 #############################################
-# Link the executable HPC.exe
+# Link the executable openmp_test_clion.exe
 
-build HPC.exe: C_EXECUTABLE_LINKER__HPC_Debug CMakeFiles/HPC.dir/helloWorld.c.obj CMakeFiles/HPC.dir/main.c.obj
+build openmp_test_clion.exe: C_EXECUTABLE_LINKER__openmp_test_clion_Debug CMakeFiles/openmp_test_clion.dir/main.c.obj
   FLAGS = -g
   LINK_LIBRARIES = -lkernel32 -luser32 -lgdi32 -lwinspool -lshell32 -lole32 -loleaut32 -luuid -lcomdlg32 -ladvapi32
-  OBJECT_DIR = CMakeFiles\HPC.dir
+  OBJECT_DIR = CMakeFiles\openmp_test_clion.dir
   POST_BUILD = cd .
   PRE_LINK = cd .
-  TARGET_FILE = HPC.exe
-  TARGET_IMPLIB = libHPC.dll.a
-  TARGET_PDB = HPC.exe.dbg
+  TARGET_FILE = openmp_test_clion.exe
+  TARGET_IMPLIB = libopenmp_test_clion.dll.a
+  TARGET_PDB = openmp_test_clion.exe.dbg
 
 
 #############################################
@@ -105,7 +99,7 @@ build rebuild_cache: phony CMakeFiles/rebuild_cache.util
 # =============================================================================
 # Target aliases.
 
-build HPC: phony HPC.exe
+build openmp_test_clion: phony openmp_test_clion.exe
 
 # =============================================================================
 # Folder targets.
@@ -115,7 +109,7 @@ build HPC: phony HPC.exe
 #############################################
 # Folder: C:/Users/micha/CLionProjects/HPC/cmake-build-debug
 
-build all: phony HPC.exe
+build all: phony openmp_test_clion.exe
 
 # =============================================================================
 # Built-in targets

@@ -1,6 +1,8 @@
 #include <stdio.h>
 #include <stdint.h>
 #include <math.h>
+#include <time.h>
+#include <omp.h>
 
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_master/stb_image.h"
@@ -54,12 +56,10 @@ void printArray(int arr[], int n)
     printf("\n");
 }
 
-
-
-int main() {
+void filterImage(char file[]){
     int width, height, bpp;
 
-    unsigned char *img = stbi_load("C:\\Users\\micha\\CLionProjects\\HPC\\highres.jpg", &width, &height, &bpp, 3);
+    unsigned char *img = stbi_load(file, &width, &height, &bpp, 3);
     unsigned bytePerPixel = 3;
     int *r = (int *)malloc(width * height * sizeof(int));
     int *g = (int *)malloc(width * height * sizeof(int));
@@ -85,6 +85,7 @@ int main() {
     int count = 0;
     int kcopy;
     int lcopy;
+    #pragma omp parallel for
     for (int i = 0; i < height; i ++){
         for (int j = 0; j < width; j ++){
             count = 0;
@@ -107,12 +108,23 @@ int main() {
             output[update++] = (char) medianFliter(windowR, windowSize * windowSize);
             output[update++] = (char) medianFliter(windowG, windowSize * windowSize);
             output[update++] = (char) medianFliter(windowB, windowSize * windowSize);
+            //printf("%d\n", update);
         }
     }
     free(r);
     free(g);
     free(b);
-    stbi_write_jpg("C:\\Users\\micha\\CLionProjects\\HPC\\1out.jpg", width, height, 3, output, 50);
+    stbi_write_jpg("C:\\Users\\micha\\CLionProjects\\HPC\\4out.jpg", width, height, 3, output, 50);
     stbi_image_free(img);
+}
+
+
+int main() {
+    time_t start, stop;
+    start = time(NULL);
+    filterImage("C:\\Users\\micha\\CLionProjects\\HPC\\highres.jpg");
+
+    stop = time(NULL);
+    printf("Run Time: %ld\n", stop - start);
     return 0;
 }
