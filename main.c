@@ -77,7 +77,7 @@ void filterImage(char file[]){
     long windowSize = 9;
     long windowOffset =  (0.5)*windowSize - 0.5;
     int imageSize = (int) windowSize * windowSize;
-    unsigned char *output = (int *)malloc(width*height*3*sizeof(unsigned char));
+    unsigned char *output = (unsigned char *)malloc(width*height*3*sizeof(unsigned char));
     long long update = 0;
     int windowR[imageSize];
     int windowG[imageSize];
@@ -114,7 +114,7 @@ void filterImage(char file[]){
     free(r);
     free(g);
     free(b);
-    stbi_write_jpg("C:\\Users\\micha\\CLionProjects\\HPC\\4out.jpg", width, height, 3, output, 50);
+    stbi_write_jpg("C:\\Users\\micha\\CLionProjects\\HPC\\5out.jpg", width, height, 3, output, 50);
     stbi_image_free(img);
 }
 
