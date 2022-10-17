@@ -60,6 +60,10 @@ void filterImage(char file[]){
     int width, height, bpp;
 
     unsigned char *img = stbi_load(file, &width, &height, &bpp, 3);
+    if(img == NULL) {
+        printf("Error in loading the image\n");
+        exit(1);
+    }
     unsigned bytePerPixel = 3;
     int *r = (int *)malloc(width * height * sizeof(int));
     int *g = (int *)malloc(width * height * sizeof(int));
