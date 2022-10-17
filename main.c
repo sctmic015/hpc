@@ -89,7 +89,7 @@ void filterImage(char file[]){
     int count = 0;
     int kcopy;
     int lcopy;
-    #pragma omp parallel for
+    #pragma omp parallel for num_threads(4)
     for (int i = 0; i < height; i ++){
         for (int j = 0; j < width; j ++){
             count = 0;
@@ -107,12 +107,15 @@ void filterImage(char file[]){
                     windowG[count] = *(g+kcopy*width+lcopy);
                     windowB[count] = *(b+kcopy*width+lcopy);
                     count ++;
+//                    printf("Hello World... from thread = %d\n",
+//                           omp_get_thread_num());
                 }
             }
-            output[update++] = (char) medianFliter(windowR, windowSize * windowSize);
-            output[update++] = (char) medianFliter(windowG, windowSize * windowSize);
-            output[update++] = (char) medianFliter(windowB, windowSize * windowSize);
-            //printf("%d\n", update);
+            int countVal = i*width*3 + j*3;
+            output[countVal] = (char) medianFliter(windowR, windowSize * windowSize);
+            output[countVal+1] = (char) medianFliter(windowG, windowSize * windowSize);
+            output[countVal+2] = (char) medianFliter(windowB, windowSize * windowSize);
+            //printf("%d\n", countVal);
         }
     }
     free(r);
@@ -127,8 +130,8 @@ int main() {
     printf("Wtf");
     time_t start, stop;
     start = time(NULL);
-    //filterImage("C:/Users/micha/CLionProjects/HPC/highres.jpg");
-    filterImage("/home/michaelscott_scott77/hpc/highres.jpg");  // for cloud
+    filterImage("C:/Users/micha/CLionProjects/HPC/highres.jpg");
+    //filterImage("/home/michaelscott_scott77/hpc/highres.jpg");  // for cloud
     stop = time(NULL);
     printf("Run Time: %ld\n", stop - start);
     return 0;
