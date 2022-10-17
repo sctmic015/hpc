@@ -122,8 +122,8 @@ void filterImage(char file[]){
 int main() {
     time_t start, stop;
     start = time(NULL);
-    filterImage("C:\\Users\\micha\\CLionProjects\\HPC\\highres.jpg");
-
+    //filterImage("C:\\Users\\micha\\CLionProjects\\HPC\\highres.jpg");
+    filterImage("\\home\\michaelscott_scott77\\hpc\\highres.jpg");  // for cloud
     stop = time(NULL);
     printf("Run Time: %ld\n", stop - start);
     return 0;
