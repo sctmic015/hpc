@@ -130,7 +130,7 @@ void printArray(int arr[], int n)
     printf("\n");
 }
 
-void filterImage(char filePath[], char outputPath[], char fileName[]){
+void filterImage(char filePath[], char outputPath[], char fileName[], long windowSize){
     // Load File Path
     char* combined = malloc(strlen(filePath)+ strlen(fileName));
     strcpy(combined, filePath);
@@ -161,7 +161,7 @@ void filterImage(char filePath[], char outputPath[], char fileName[]){
     }
 
     // Implement median filter
-    long windowSize = 3;
+    //long windowSize = 3;
     long windowOffset =  (0.5)*windowSize - 0.5;
     int imageSize = (int) windowSize * windowSize;
     unsigned char *output = (unsigned char *)malloc(width*height*3*sizeof(unsigned char));
@@ -210,11 +210,17 @@ void filterImage(char filePath[], char outputPath[], char fileName[]){
 }
 
 
-int main() {
+int main(int argc, char *argv[]) {
     time_t start, stop;
     start = time(NULL);
-
-    int windowSize;
+    char* inputFolder = argv[1];
+    //printf("%s", inputFolder);
+    char* outputFolder = argv[2];
+    long windowSize = atoi(argv[3]);
+    if (windowSize > 25 || windowSize < 3 || windowSize % 2 == 0){
+        printf("Incorrect Window Size");
+        exit(1);
+    }
 
     // Attempt to try and do static array
     // Count number of files
@@ -253,7 +259,7 @@ int main() {
 
     for (int i = 0; i < count; i ++){
         printf("%s\n",files[i]);
-        filterImage("C:/Users/micha/CLionProjects/HPC/Images/", "C:/Users/micha/CLionProjects/HPC/ImagesOut/", files[i]);
+        filterImage(inputFolder, outputFolder, files[i], windowSize);
     }
 
     stop = time(NULL);
