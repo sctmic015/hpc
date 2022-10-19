@@ -130,10 +130,19 @@ void printArray(int arr[], int n)
     printf("\n");
 }
 
-void filterImage(char file[]){
+void filterImage(char filePath[], char outputPath[], char fileName[]){
+    // Load File Path
+    char* combined = malloc(strlen(filePath)+ strlen(fileName));
+    strcpy(combined, filePath);
+    strcat(combined, fileName);
+
+    // Out file Path
+    char* combinedOut = malloc(strlen(outputPath) + strlen(fileName));
+    strcpy(combinedOut, outputPath);
+    strcat(combinedOut, fileName);
     int width, height, bpp;
 
-    unsigned char *img = stbi_load(file, &width, &height, &bpp, 3);
+    unsigned char *img = stbi_load(combined, &width, &height, &bpp, 3);
     if(img == NULL) {
         printf("Error in loading the image\n");
         //exit(1);
@@ -195,15 +204,18 @@ void filterImage(char file[]){
     free(r);
     free(g);
     free(b);
-    stbi_write_jpg("C:\\Users\\micha\\CLionProjects\\HPC\\Images\\5out.jpg", width, height, 3, output, 50);
+    stbi_write_jpg(combinedOut, width, height, 3, output, 50);
     stbi_image_free(img);
+    printf("%s\n","Done Image");
 }
 
 
 int main() {
-
     time_t start, stop;
     start = time(NULL);
+
+    int windowSize;
+
     // Attempt to try and do static array
     // Count number of files
     int count = 0;
@@ -240,31 +252,10 @@ int main() {
 
 
     for (int i = 0; i < count; i ++){
-            printf("%s\n",files[i]);
+        printf("%s\n",files[i]);
+        filterImage("C:/Users/micha/CLionProjects/HPC/Images/", "C:/Users/micha/CLionProjects/HPC/ImagesOut/", files[i]);
     }
-    //free(files);
-//    DIR *dir;
-//    struct dirent *ent;
-//    if ((dir = opendir ("C:/Users/micha/CLionProjects/HPC/Images")) != NULL) {
-//        /* print all the files and directories within directory */
-//        while ((ent = readdir (dir)) != NULL) {
-//            char* folder = "C:/Users/micha/CLionProjects/HPC/Images/";
-//            char* file = ent->d_name;
-//            char* combined = malloc(strlen(folder)+ strlen(file));
-//            strcpy(combined, folder);
-//            strcat(combined, file);
-//            printf("%s\n",combined);
-//            filterImage(combined);
-//            free(combined);
-//        }
-//        closedir (dir);
-//    } else {
-//        /* could not open directory */
-//        perror ("");
-//        return EXIT_FAILURE;
-//    }
-    //filterImage("C:/Users/micha/CLionProjects/HPC/highres.jpg");
-    //filterImage("/home/michaelscott_scott77/hpc/highres.jpg");  // for cloud
+
     stop = time(NULL);
     printf("Run Time: %ld\n", stop - start);
     return 0;
