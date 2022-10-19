@@ -221,7 +221,7 @@ int main() {
     closedir(dir);
 
     // Populate files Array
-    char** files = (char **)malloc(count * sizeof(char *));
+    char* files[count];
     struct dirent *dp2;
     DIR *dir2;
     if ((dir2 = opendir("C:/Users/micha/CLionProjects/HPC/Images")) == NULL) {
@@ -231,9 +231,8 @@ int main() {
     while ((dp2 = readdir(dir2)) != NULL) {
         if (!strcmp(dp2->d_name, ".") || !strcmp(dp2->d_name, ".."))
             continue;    /* skip self and parent */
-        char file = dp2->d_name;
-        files[fileNum] = (char *)malloc(sizeof(char)* strlen(file));
-        strcpy(files[fileNum], file);
+        files[fileNum] = (char*) malloc(strlen(dp2->d_name)+1);
+        strcpy(files[fileNum], dp2->d_name);
         fileNum++;
         //printf(file);
     }
@@ -241,11 +240,9 @@ int main() {
 
 
     for (int i = 0; i < count; i ++){
-        for (int j = 0; j < fileNum; j ++){
-            printf("%s",files[i][j]);
-        }
+            printf("%s\n",files[i]);
     }
-    free(files);
+    //free(files);
 //    DIR *dir;
 //    struct dirent *ent;
 //    if ((dir = opendir ("C:/Users/micha/CLionProjects/HPC/Images")) != NULL) {
