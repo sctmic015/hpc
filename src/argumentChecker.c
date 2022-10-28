@@ -36,14 +36,16 @@ bool isValidNumberOfArgs(int argsNumProvided)
 bool isDir(char *dir)
 {
     bool flag = true;
-    DIR *directory;
+    DIR *directory = NULL;
 
     if ((directory = opendir(dir)) == NULL)
     {
         fprintf(stderr, "Invalid directory: can't open %s\n", dir);
         flag = false;
     }
-    closedir(directory);
+    if (directory != NULL) {
+        closedir(directory);
+    }
 
     return flag;
 }
