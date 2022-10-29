@@ -147,6 +147,11 @@ int main(int argc, char *argv[])
             filterImage(inDir, outDir, files[i], windowSize);
         }
 
+        for (int i = 0; i < count; i++)
+        {
+            free(files[i]);
+        }
+
         // stop = time(NULL);
         // printf("Run Time: %ld\n", stop - start);
     }
