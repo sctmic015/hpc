@@ -129,6 +129,13 @@ bool selfOrParent(struct dirent *dp)
     return (!strcmp(dp->d_name, ".") || !strcmp(dp->d_name, ".."));
 }
 
+// Function to determine if file is .png or .jpeg
+bool pngOrJpeg(char *file)
+{
+    char *dot = strrchr(file, '.');
+    return (dot && (!strcmp(dot, ".png") || !strcmp(dot, ".jpeg")));
+}
+
 // Counts the number of files that should be run through the filter
 int getNumberOfFiles(char *inDir)
 {
@@ -138,7 +145,7 @@ int getNumberOfFiles(char *inDir)
 
     while ((dp = readdir(dir)) != NULL)
     {
-        if (!selfOrParent(dp))
+        if (!selfOrParent(dp) && pngOrJpeg(dp->d_name))
         {
             count++;
         }
@@ -160,7 +167,7 @@ void getListOfFiles(char *inDir, char *files[])
 
     while ((dp = readdir(dir)) != NULL)
     {
-        if (!selfOrParent(dp))
+        if (!selfOrParent(dp) && pngOrJpeg(dp->d_name))
         {
             files[fileNum] = (char *)malloc(strlen(dp->d_name) + 1);
             strcpy(files[fileNum], dp->d_name);

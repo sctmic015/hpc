@@ -40,6 +40,9 @@ void printArray(int arr[], int n);
 // Function to determine if directory entry is self or parent
 bool selfOrParent(struct dirent *dp);
 
+// Function to determine if file is .png or .jpeg
+bool pngOrJpeg(char *file);
+
 // Counts the number of files that should be run through the filter
 int getNumberOfFiles(char *inDir);
 
