@@ -27,30 +27,14 @@
 #define STB_IMAGE_WRITE_IMPLEMENTATION
 #include "stb_image_write.h"
 
-// unsigned char readImage(char imagename[]){
-//     int width, height, bpp;
-//
-//     uint8_t *img = stbi_load("C:\\Users\\micha\\CLionProjects\\HPC\\1.jpeg", &width, &height, &bpp, 4);
-//
-//     return img
-//     stbi_image_free(img);
-// }
-
 void filterImage(char filePath[], char outputPath[], char fileName[], long windowSize)
 {
-    // Load File Path
-    char *combined = malloc(strlen(filePath) + strlen(fileName));
-    strcpy(combined, filePath);
-    strcat(combined, "/");
-    strcat(combined, fileName);
+    // Creaet combined input and output names
+    char *combined = createCombinedName(filePath, fileName);
+    char *combinedOut = createCombinedName(outputPath, fileName);
 
-    // Out file Path
-    char *combinedOut = malloc(strlen(outputPath) + strlen(fileName));
-    strcpy(combinedOut, outputPath);
-    strcat(combinedOut, "/");
-    strcat(combinedOut, fileName);
+    // Load image
     int width, height, bpp;
-
     unsigned char *img = stbi_load(combined, &width, &height, &bpp, 3);
 
     if (img != NULL)
@@ -72,13 +56,12 @@ void filterImage(char filePath[], char outputPath[], char fileName[], long windo
         }
 
         // Implement median filter
-        // long windowSize = 3;
         long windowOffset = (0.5) * windowSize - 0.5;
         int imageSize = (int)windowSize * windowSize;
         unsigned char *output = (unsigned char *)malloc(width * height * 3 * sizeof(unsigned char));
         long long update = 0;
-// int count = 0;
-#pragma omp parallel for
+
+        //#pragma omp parallel for
         for (int i = 0; i < height; i++)
         {
             int windowR[imageSize];

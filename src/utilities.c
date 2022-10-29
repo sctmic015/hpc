@@ -177,3 +177,14 @@ void getListOfFiles(char *inDir, char *files[])
 
     closedir(dir);
 }
+
+// Create a combined file path name
+char *createCombinedName(char filePath[], char fileName[])
+{
+    char *combined = malloc(strlen(filePath) + strlen(fileName));
+    strcpy(combined, filePath);
+    strcat(combined, "/");
+    strcat(combined, fileName);
+
+    return combined;
+}

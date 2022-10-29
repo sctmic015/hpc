@@ -49,4 +49,7 @@ int getNumberOfFiles(char *inDir);
 // Gets the list of files to be filtered
 void getListOfFiles(char *inDir, char *files[]);
 
+// Create a combined file path name
+char *createCombinedName(char filePath[], char fileName[]);
+
 #endif
