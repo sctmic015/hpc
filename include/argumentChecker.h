@@ -3,7 +3,6 @@
  * @author Michael Scott
  * @author Jared May
  * @version October 2022
- * @version April 2021
  *
  * Header for argument checking
  * Check a set of arguments and a number of arguments for valid argument passing
