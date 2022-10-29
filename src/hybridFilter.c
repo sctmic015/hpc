@@ -36,6 +36,7 @@ void filterImage(char filePath[], char outputPath[], char fileName[], long windo
     // Load image
     int width, height, bpp;
     unsigned char *img = stbi_load(combined, &width, &height, &bpp, 3);
+    free(combined);
 
     if (img != NULL)
     {
@@ -109,6 +110,8 @@ void filterImage(char filePath[], char outputPath[], char fileName[], long windo
 
         stbi_write_jpg(combinedOut, width, height, 3, output, 50);
         stbi_image_free(img);
+        free(combinedOut);
+        free(output);
 
         printf("%s\n", "Done Image");
     }
@@ -118,6 +121,7 @@ void filterImage(char filePath[], char outputPath[], char fileName[], long windo
     }
 }
 
+// <<< TODO: REPLACE THIS MAIN WITH mpiFilter.c MAIN >>>
 int main(int argc, char *argv[])
 {
     // time_t start, stop;

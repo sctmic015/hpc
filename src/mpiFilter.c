@@ -35,6 +35,7 @@ void filterImage(char filePath[], char outputPath[], char fileName[], long windo
     // Load image
     int width, height, bpp;
     unsigned char *img = stbi_load(combined, &width, &height, &bpp, 3);
+    free(combined);
 
     if (img != NULL)
     {
@@ -105,6 +106,8 @@ void filterImage(char filePath[], char outputPath[], char fileName[], long windo
 
         stbi_write_jpg(combinedOut, width, height, 3, output, 50);
         stbi_image_free(img);
+        free(combinedOut);
+        free(output);
 
         printf("%s\n", "Done Image");
     }
@@ -121,6 +124,15 @@ int main(int argc, char *argv[])
 
     if (isValidArguments(argc, argv))
     {
+        // Setup MPI
+        int rank, size;
+        int *sendcounts;
+        int *displs;
+
+        MPI_Init(&argc, &argv);
+        MPI_Comm_rank(MPI_COMM_WORLD, &rank);
+        MPI_Comm_size(MPI_COMM_WORLD, &size);
+
         // Skip the executable name
         --argc;
         ++argv;
@@ -131,14 +143,48 @@ int main(int argc, char *argv[])
 
         int count = getNumberOfFiles(inDir);
 
+        // Further MPI setup
+        int minNumElements = count / size;
+        int remainder = count % size;
+        int k = 0;
+        sendcounts = malloc(sizeof(int) * size);
+        displs = malloc(sizeof(int) * size);
+
+        // Get distribution of values
+        for (int i = 0; i < size; i++)
+        {
+            sendcounts[i] = minNumElements;
+
+            if (i < remainder)
+            {
+                sendcounts[i]++;
+            }
+
+            displs[i] = k;
+            k += sendcounts[i];
+        }
+
         // Populate files Array
         char *files[count];
         getListOfFiles(inDir, files);
 
+        // TODO: FIX Define file subset array of files for each process and scatter files appropriately
+        char *fileSubset[sendcounts[rank]];
+        // TODO: SCATTERV FILES INTO FILESUBSET THAT EACH PROC HANDLES
+
+        for (int i = 0; i < sendcounts[rank]; i++)
+        {
+            printf("Process %d: %s\n", rank, fileSubset[i]);
+            filterImage(inDir, outDir, fileSubset[i], windowSize);
+        }
+
+        MPI_Finalize();
+        free(sendcounts);
+        free(displs);
+
         for (int i = 0; i < count; i++)
         {
-            printf("%s\n", files[i]);
-            filterImage(inDir, outDir, files[i], windowSize);
+            free(files[i]);
         }
 
         // stop = time(NULL);
