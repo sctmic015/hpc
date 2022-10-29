@@ -12,24 +12,43 @@ INC=include
 OBJ=build
 OUT=out
 # Basic flags
-CC=clang
+CC=gcc
 INCLUDES=-I$(INC)
-CCFLAGS=
+CCFLAGS=-Xpreprocessor -fopenmp -lomp
 
 # List of files and paths used, stored as variables
-EXE=medianFilter
-TARGET=$(BIN)/$(EXE)
+P1=serialFilter
+P2=ompFilter
+P3=mpiFilter
+P4=hybridFilter
+TARGETS=$(BIN)/$(P1) $(BIN)/$(P2) $(BIN)/$(P3) $(BIN)/$(P4)
 SRCFILES=$(wildcard $(SRC)/*.c)
-OBJFILES=$(SRCFILES:$(SRC)/%.c=$(OBJ)/%.o)
+OBJFILES=$(OBJ)/argumentChecker.o $(OBJ)/utilities.o
+P1OBJS=$(OBJFILES) $(OBJ)/serialFilter.o
+P2OBJS=$(OBJFILES) $(OBJ)/ompFilter.o
+P3OBJS=$(OBJFILES) $(OBJ)/mpiFilter.o
+P4OBJS=$(OBJFILES) $(OBJ)/hybridFilter.o
 HEADFILES=$(wildcard $(INC)/*.h)
 
-# Default build to make executable
-build: $(TARGET)
-	@echo Compilation complete! Please run ./$(TARGET) with appropriate arguments to begin execution...
+# Default build to make all executables
+build: $(TARGETS)
+	@echo Compilation complete! Please run ./executable with appropriate arguments to begin execution, where executable is one of $(TARGETS)...
 
-# Object file checking and linking
-$(TARGET): $(OBJFILES)
+# Serial
+$(BIN)/$(P1): $(P1OBJS)
+	$(CC) $^ -o $@
+
+# OpenMP
+$(BIN)/$(P2): $(P2OBJS)
 	$(CC) $(CCFLAGS) $^ -o $@
+
+# MPI
+$(BIN)/$(P3): $(P3OBJS)
+	mpicc -openmpi-mp $^ -o $@
+
+# Hybrid
+$(BIN)/$(P4): $(P4OBJS)
+	mpicc $(CCFLAGS) $^ -o $@
 
 # Source file checking and compiling
 $(OBJ)/%.o: $(SRC)/%.c

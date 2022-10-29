@@ -4,7 +4,7 @@
  * @author Jared May
  * @version October 2022
  *
- * Main launching point of median filter program
+ * Main launching point of median filter program for OpenMP solution
  */
 
 // Headers
@@ -14,7 +14,6 @@
 #include <stdlib.h>
 #include <math.h>
 #include <time.h>
-#define _DEFAULT_SOURCE
 #include <dirent.h>
 
 #include <omp.h>
@@ -29,7 +28,7 @@
 
 void filterImage(char filePath[], char outputPath[], char fileName[], long windowSize)
 {
-    // Creaet combined input and output names
+    // Create combined input and output names
     char *combined = createCombinedName(filePath, fileName);
     char *combinedOut = createCombinedName(outputPath, fileName);
 
@@ -61,42 +60,45 @@ void filterImage(char filePath[], char outputPath[], char fileName[], long windo
         unsigned char *output = (unsigned char *)malloc(width * height * 3 * sizeof(unsigned char));
         long long update = 0;
 
-        //#pragma omp parallel for
-        for (int i = 0; i < height; i++)
+#pragma omp parallel
         {
-            int windowR[imageSize];
-            int windowG[imageSize];
-            int windowB[imageSize];
-            for (int j = 0; j < width; j++)
+#pragma omp for
+            for (int i = 0; i < height; i++)
             {
-                int count = 0;
-                int kcopy;
-                int lcopy;
-                for (int k = i - windowOffset; k <= i + windowOffset; k++)
+                int windowR[imageSize];
+                int windowG[imageSize];
+                int windowB[imageSize];
+                for (int j = 0; j < width; j++)
                 {
-                    for (int l = j - windowOffset; l <= j + windowOffset; l++)
+                    int count = 0;
+                    int kcopy;
+                    int lcopy;
+                    for (int k = i - windowOffset; k <= i + windowOffset; k++)
                     {
-                        kcopy = abs(k);
-                        lcopy = abs(l);
-                        if (k > height - 1)
+                        for (int l = j - windowOffset; l <= j + windowOffset; l++)
                         {
-                            kcopy = (height - 1) - (kcopy - (height - 1));
+                            kcopy = abs(k);
+                            lcopy = abs(l);
+                            if (k > height - 1)
+                            {
+                                kcopy = (height - 1) - (kcopy - (height - 1));
+                            }
+                            if (l > width - 1)
+                            {
+                                lcopy = (width - 1) - (lcopy - (width - 1));
+                            }
+                            windowR[count] = *(r + kcopy * width + lcopy);
+                            windowG[count] = *(g + kcopy * width + lcopy);
+                            windowB[count] = *(b + kcopy * width + lcopy);
+                            count++;
                         }
-                        if (l > width - 1)
-                        {
-                            lcopy = (width - 1) - (lcopy - (width - 1));
-                        }
-                        windowR[count] = *(r + kcopy * width + lcopy);
-                        windowG[count] = *(g + kcopy * width + lcopy);
-                        windowB[count] = *(b + kcopy * width + lcopy);
-                        count++;
                     }
-                }
 
-                int countVal = i * width * 3 + j * 3;
-                output[countVal] = (char)medianFliter(windowR, windowSize * windowSize);
-                output[countVal + 1] = (char)medianFliter(windowG, windowSize * windowSize);
-                output[countVal + 2] = (char)medianFliter(windowB, windowSize * windowSize);
+                    int countVal = i * width * 3 + j * 3;
+                    output[countVal] = (char)medianFliter(windowR, windowSize * windowSize);
+                    output[countVal + 1] = (char)medianFliter(windowG, windowSize * windowSize);
+                    output[countVal + 2] = (char)medianFliter(windowB, windowSize * windowSize);
+                }
             }
         }
 
