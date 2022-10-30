@@ -171,6 +171,7 @@ int main(int argc, char *argv[])
         // TODO: FIX Define file subset array of files for each process and scatter files appropriately
         char *fileSubset[sendcounts[rank]];
         // TODO: SCATTERV FILES INTO FILESUBSET THAT EACH PROC HANDLES
+        MPI_Scatterv(files, sendcounts, displs, MPI_CHAR, fileSubset, sendcounts[rank], MPI_CHAR, 0, MPI_COMM_WORLD);
 
         for (int i = 0; i < sendcounts[rank]; i++)
         {
