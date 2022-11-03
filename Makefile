@@ -56,7 +56,7 @@ $(BIN)/$(P4): $(P4OBJS)
 $(OBJ)/%.o: $(SRC)/%.c
 	$(MPICC) -openmpi-mp $(CCFLAGS) $(INCLUDES) -c $< -o $@ $(LIBS)
 
-.PHONY: clean rebuild cleanOut
+.PHONY: clean rebuild cleanOut cleanTime
 
 # Remove all object files, executables, created outputs and hidden files
 clean:
