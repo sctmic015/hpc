@@ -123,10 +123,10 @@ void printArray(int arr[], int n)
     printf("\n");
 }
 
-// Function to determine if directory entry is self or parent
-bool selfOrParent(struct dirent *dp)
+// Function to determine if directory entry is a hidden file
+bool hiddenFile(struct dirent *dp)
 {
-    return (!strcmp(dp->d_name, ".") || !strcmp(dp->d_name, ".."));
+    return (dp->d_name[0] == '.');
 }
 
 // Function to determine if file is .png or .jpeg
@@ -145,7 +145,7 @@ int getNumberOfFiles(char *inDir)
 
     while ((dp = readdir(dir)) != NULL)
     {
-        if (!selfOrParent(dp) && pngOrJpeg(dp->d_name))
+        if (!hiddenFile(dp) && pngOrJpeg(dp->d_name))
         {
             count++;
         }
@@ -167,7 +167,7 @@ void getListOfFiles(char *inDir, char *files[])
 
     while ((dp = readdir(dir)) != NULL)
     {
-        if (!selfOrParent(dp) && pngOrJpeg(dp->d_name))
+        if (!hiddenFile(dp) && pngOrJpeg(dp->d_name))
         {
             files[fileNum] = (char *)malloc(strlen(dp->d_name) + 1);
             strcpy(files[fileNum], dp->d_name);

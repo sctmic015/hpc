@@ -37,8 +37,8 @@ int medianFliter(int window[], int n);
 // A utility function to print array of size n
 void printArray(int arr[], int n);
 
-// Function to determine if directory entry is self or parent
-bool selfOrParent(struct dirent *dp);
+// Function to determine if directory entry is a hidden file
+bool hiddenFile(struct dirent *dp);
 
 // Function to determine if file is .png or .jpeg
 bool pngOrJpeg(char *file);
