@@ -13,8 +13,10 @@ OBJ=build
 OUT=out
 # Basic flags
 CC=gcc
+MPICC=mpicc
 INCLUDES=-I$(INC)
-CCFLAGS=-Xpreprocessor -fopenmp -lomp
+CCFLAGS=-fopenmp
+LIBS=-lm
 
 # List of files and paths used, stored as variables
 P1=serialFilter
@@ -36,23 +38,23 @@ build: $(TARGETS)
 
 # Serial
 $(BIN)/$(P1): $(P1OBJS)
-	$(CC) $^ -o $@
+	$(CC) $^ -o $@ $(LIBS)
 
 # OpenMP
 $(BIN)/$(P2): $(P2OBJS)
-	$(CC) $(CCFLAGS) $^ -o $@
+	$(CC) $(CCFLAGS) $^ -o $@ $(LIBS)
 
 # MPI
 $(BIN)/$(P3): $(P3OBJS)
-	mpicc -openmpi-mp $^ -o $@
+	$(MPICC) -openmpi-mp $^ -o $@ $(LIBS)
 
 # Hybrid
 $(BIN)/$(P4): $(P4OBJS)
-	mpicc $(CCFLAGS) $^ -o $@
+	$(MPICC) $(CCFLAGS) $^ -o $@ $(LIBS)
 
 # Source file checking and compiling
 $(OBJ)/%.o: $(SRC)/%.c
-	$(CC) $(CCFLAGS) $(INCLUDES) -c $< -o $@
+	$(MPICC) -openmpi-mp $(CCFLAGS) $(INCLUDES) -c $< -o $@ $(LIBS)
 
 .PHONY: clean rebuild cleanOut
 
