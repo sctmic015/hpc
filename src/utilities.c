@@ -129,11 +129,11 @@ bool hiddenFile(struct dirent *dp)
     return (dp->d_name[0] == '.');
 }
 
-// Function to determine if file is .png or .jpeg
+// Function to determine if file is .png or .jpeg or .jpg
 bool pngOrJpeg(char *file)
 {
     char *dot = strrchr(file, '.');
-    return (dot && (!strcmp(dot, ".png") || !strcmp(dot, ".jpeg")));
+    return (dot && (!strcmp(dot, ".png") || !strcmp(dot, ".jpeg") || !strcmp(dot, ".jpg")));
 }
 
 // Counts the number of files that should be run through the filter
