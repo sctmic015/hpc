@@ -27,7 +27,7 @@
 #define STB_IMAGE_WRITE_IMPLEMENTATION
 #include "stb_image_write.h"
 
-void filterImage(char filePath[], char outputPath[], char fileName[], long windowSize)
+void filterImage(char filePath[], char outputPath[], char fileName[], long windowSize, int rank, int nprocs, char* processor_name)
 {
     // Create combined input and output names
     char *combined = createCombinedName(filePath, fileName);
@@ -61,12 +61,16 @@ void filterImage(char filePath[], char outputPath[], char fileName[], long windo
         int imageSize = (int)windowSize * windowSize;
         unsigned char *output = (unsigned char *)malloc(width * height * 3 * sizeof(unsigned char));
         long long update = 0;
+        int iam = 0, np =1;
 
 #pragma omp parallel
         {
 #pragma omp for
             for (int i = 0; i < height; i++)
             {
+                np = omp_get_num_threads();
+                iam = omp_get_thread_num();
+                //printf("Hello from thread %d out of %d from process %d out of %d on %s\n", iam, np, rank, nprocs, processor_name);
                 int windowR[imageSize];
                 int windowG[imageSize];
                 int windowB[imageSize];
@@ -121,14 +125,27 @@ void filterImage(char filePath[], char outputPath[], char fileName[], long windo
     }
 }
 
-// <<< TODO: REPLACE THIS MAIN WITH mpiFilter.c MAIN >>>
+
 int main(int argc, char *argv[])
 {
-    // time_t start, stop;
-    // start = time(NULL);
+    time_t start, stop;
+    start = time(NULL);
 
     if (isValidArguments(argc, argv))
     {
+        
+
+        int rank, nprocs, namelen;
+        char processor_name[MPI_MAX_PROCESSOR_NAME];
+        int c = 0;
+        omp_set_num_threads(4);
+
+        MPI_Init(&argc, &argv);
+        MPI_Comm_size(MPI_COMM_WORLD, &nprocs);
+        MPI_Comm_rank(MPI_COMM_WORLD, &rank);
+        MPI_Get_processor_name(processor_name, &namelen);
+        printf("nprocs: %d",nprocs);
+
         // Skip the executable name
         --argc;
         ++argv;
@@ -142,15 +159,50 @@ int main(int argc, char *argv[])
         // Populate files Array
         char *files[count];
         getListOfFiles(inDir, files);
+        int counter, itstart, itstop;
 
-        for (int i = 0; i < count; i++)
+        //Assign Rows
+        int* amountPerRow = (int *) malloc(nprocs * sizeof(int));
+        int* rows = (int *) malloc(nprocs * sizeof(int)); 
+
+        int initialSize = count / nprocs;
+        int remainder = count % nprocs;
+        for (int i = 0; i < nprocs; i ++){
+            amountPerRow[i] = initialSize;
+            if (remainder != 0){
+                amountPerRow[i] ++;
+                remainder --;
+            }
+        }
+        rows[0] = amountPerRow[0];
+        for (int i = 1; i < nprocs; i ++){
+            rows[i] = rows[i-1] + amountPerRow[i];
+        }
+        if (rank == 0){
+            itstart = 0;
+            itstop = rows[0];
+            printf("rank %d start %d stop %d \n", rank, itstart, itstop);
+        }
+        else{
+            itstart = rows[rank - 1];
+            itstop = rows[rank];
+            printf("rank %d start %d stop %d \n", rank, itstart, itstop);
+        }
+        for (int i = itstart; i < itstop; i++)
         {
-            printf("%s\n", files[i]);
-            filterImage(inDir, outDir, files[i], windowSize);
+            filterImage(inDir, outDir, files[i], windowSize, rank, nprocs, processor_name);
         }
 
-        // stop = time(NULL);
-        // printf("Run Time: %ld\n", stop - start);
+        MPI_Barrier(MPI_COMM_WORLD);
+        for (int i = 0; i < count; i++)
+        {
+            free(files[i]);
+        }
+
+        printf("%d\n", c);
+        MPI_Finalize();     
+        stop = time(NULL);
+        printf("Run Time: %ld\n", stop - start);
     }
     else
     {

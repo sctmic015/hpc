@@ -31,7 +31,6 @@ void filterImage(char filePath[], char outputPath[], char fileName[], long windo
     // Create combined input and output names
     char *combined = createCombinedName(filePath, fileName);
     char *combinedOut = createCombinedName(outputPath, fileName);
-
     // Load image
     int width, height, bpp;
     unsigned char *img = stbi_load(combined, &width, &height, &bpp, 3);
@@ -61,7 +60,6 @@ void filterImage(char filePath[], char outputPath[], char fileName[], long windo
         unsigned char *output = (unsigned char *)malloc(width * height * 3 * sizeof(unsigned char));
         long long update = 0;
 
-        //#pragma omp parallel for
         for (int i = 0; i < height; i++)
         {
             int windowR[imageSize];
@@ -119,20 +117,21 @@ void filterImage(char filePath[], char outputPath[], char fileName[], long windo
 
 int main(int argc, char *argv[])
 {
-    // time_t start, stop;
-    // start = time(NULL);
+
 
     if (isValidArguments(argc, argv))
     {
+        time_t start, stop;
+        start = time(NULL);
         // Setup MPI
-        int rank, size;
+        int rank, nprocs;
         int *sendcounts;
         int *displs;
 
         MPI_Init(&argc, &argv);
         MPI_Comm_rank(MPI_COMM_WORLD, &rank);
-        MPI_Comm_size(MPI_COMM_WORLD, &size);
-
+        MPI_Comm_size(MPI_COMM_WORLD, &nprocs);
+        
         // Skip the executable name
         --argc;
         ++argv;
@@ -143,53 +142,52 @@ int main(int argc, char *argv[])
 
         int count = getNumberOfFiles(inDir);
 
-        // Further MPI setup
-        int minNumElements = count / size;
-        int remainder = count % size;
-        int k = 0;
-        sendcounts = malloc(sizeof(int) * size);
-        displs = malloc(sizeof(int) * size);
-
-        // Get distribution of values
-        for (int i = 0; i < size; i++)
-        {
-            sendcounts[i] = minNumElements;
-
-            if (i < remainder)
-            {
-                sendcounts[i]++;
-            }
-
-            displs[i] = k;
-            k += sendcounts[i];
-        }
-
         // Populate files Array
         char *files[count];
         getListOfFiles(inDir, files);
 
-        // TODO: FIX Define file subset array of files for each process and scatter files appropriately
-        char *fileSubset[sendcounts[rank]];
-        // TODO: SCATTERV FILES INTO FILESUBSET THAT EACH PROC HANDLES
-        MPI_Scatterv(files, sendcounts, displs, MPI_CHAR, fileSubset, sendcounts[rank], MPI_CHAR, 0, MPI_COMM_WORLD);
+        //Assign Rows
+        int counter, itstart, itstop;
+        int* amountPerRow = (int *) malloc(nprocs * sizeof(int));
+        int* rows = (int *) malloc(nprocs * sizeof(int)); 
 
-        for (int i = 0; i < sendcounts[rank]; i++)
-        {
-            printf("Process %d: %s\n", rank, fileSubset[i]);
-            filterImage(inDir, outDir, fileSubset[i], windowSize);
+        int initialSize = count / nprocs;
+        int remainder = count % nprocs;
+        for (int i = 0; i < nprocs; i ++){
+            amountPerRow[i] = initialSize;
+            if (remainder != 0){
+                amountPerRow[i] ++;
+                remainder --;
+            }
+        }
+        rows[0] = amountPerRow[0];
+        for (int i = 1; i < nprocs; i ++){
+            rows[i] = rows[i-1] + amountPerRow[i]; 
+        }
+        if (rank == 0){
+            itstart = 0;
+            itstop = rows[0];
+            printf("rank %d start %d stop %d \n", rank, itstart, itstop);
+        }
+        else{
+            itstart = rows[rank - 1];
+            itstop = rows[rank];
+            printf("rank %d start %d stop %d \n", rank, itstart, itstop);
         }
 
-        MPI_Finalize();
-        free(sendcounts);
-        free(displs);
+        for (int i = itstart; i < itstop; i++)
+        {
+            filterImage(inDir, outDir, files[i], windowSize);
+        }
 
+        MPI_Barrier(MPI_COMM_WORLD);
         for (int i = 0; i < count; i++)
         {
             free(files[i]);
         }
-
-        // stop = time(NULL);
-        // printf("Run Time: %ld\n", stop - start);
+        MPI_Finalize();
+        stop = time(NULL);
+        printf("Run Time: %ld\n", stop - start);
     }
     else
     {
