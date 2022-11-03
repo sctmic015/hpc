@@ -70,3 +70,8 @@ rebuild: clean build
 cleanOut:
 	@rm -rf $(OUT)/*
 	@echo "Output directory now clean!"
+
+# Clean all files stored in time (to clean up the workspace without having to clean binaries)
+cleanTime:
+	@rm -rf time/*
+	@echo "Time directory now clean!"
