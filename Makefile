@@ -60,7 +60,7 @@ $(OBJ)/%.o: $(SRC)/%.c
 
 # Remove all object files, executables, created outputs and hidden files
 clean:
-	@rm -rf $(OBJ)/*.o $(BIN)/* $(OUT)/* .DS_Store
+	@rm -rf $(OBJ)/*.o $(BIN)/* $(OUT)/* .DS_Store time/*
 	@echo Clean!
 
 # Clean out the system and build it again
