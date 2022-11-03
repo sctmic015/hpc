@@ -1,6 +1,6 @@
 .idea
 .vscode
-build/*
-bin/*
-out/*
+build/**
+bin/**
+out/**
 .DS_Store
