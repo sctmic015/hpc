@@ -16,7 +16,7 @@ OUT=out
 CC=gcc
 MPICC=mpicc
 INCLUDES=-I$(INC)
-CCFLAGS=-fopenmp
+CCFLAGS=-fopenmp -std=c99
 LIBS=-lm
 
 # List of files and paths used, stored as variables
@@ -24,13 +24,15 @@ P1=serialFilter
 P2=ompFilter
 P3=mpiFilter
 P4=hybridFilter
-TARGETS=$(BIN)/$(P1) $(BIN)/$(P2) $(BIN)/$(P3) $(BIN)/$(P4)
+P5=mpiFilterOLD
+TARGETS=$(BIN)/$(P1) $(BIN)/$(P2) $(BIN)/$(P3) $(BIN)/$(P4) $(BIN)/$(P5)
 SRCFILES=$(wildcard $(SRC)/*.c)
 OBJFILES=$(OBJ)/argumentChecker.o $(OBJ)/utilities.o
 P1OBJS=$(OBJFILES) $(OBJ)/serialFilter.o
 P2OBJS=$(OBJFILES) $(OBJ)/ompFilter.o
 P3OBJS=$(OBJFILES) $(OBJ)/mpiFilter.o
 P4OBJS=$(OBJFILES) $(OBJ)/hybridFilter.o
+P5OBJS=$(OBJFILES) $(OBJ)/mpiFilterOLD.o
 HEADFILES=$(wildcard $(INC)/*.h)
 
 # Default build to make all executables
@@ -52,6 +54,10 @@ $(BIN)/$(P3): $(P3OBJS)
 # Hybrid
 $(BIN)/$(P4): $(P4OBJS)
 	$(MPICC) $(CCFLAGS) $^ -o $@ $(LIBS)
+
+# MPI OLD
+$(BIN)/$(P5): $(P5OBJS)
+	$(MPICC) -openmpi-mp $^ -o $@ $(LIBS)
 
 # Source file checking and compiling
 $(OBJ)/%.o: $(SRC)/%.c
