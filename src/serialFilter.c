@@ -116,11 +116,10 @@ void filterImage(char filePath[], char outputPath[], char fileName[], long windo
 
 int main(int argc, char *argv[])
 {
-    time_t start, stop;
-    start = time(NULL);
-
     if (isValidArguments(argc, argv))
     {
+        time_t start, stop;
+        start = time(NULL);
         // Skip the executable name
         --argc;
         ++argv;
@@ -146,13 +145,12 @@ int main(int argc, char *argv[])
             free(files[i]);
         }
 
-
+        stop = time(NULL);
+        printf("%ld\n", stop - start);
     }
     else
     {
         quitProgram();
     }
-    stop = time(NULL);
-    printf("%ld\n", stop - start);
 }
 
