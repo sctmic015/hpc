@@ -4,13 +4,14 @@
 # @author Michael Scott
 # @author Jared May
 # @version October 2022
-
 # Set up variables for directories
+
 BIN=bin
 SRC=src
 INC=include
 OBJ=build
 OUT=out
+
 # Basic flags
 CC=gcc
 MPICC=mpicc
@@ -23,18 +24,13 @@ P1=serialFilter
 P2=ompFilter
 P3=mpiFilter
 P4=hybridFilter
-P5=test
-TARGETS=$(BIN)/$(P1) $(BIN)/$(P2) $(BIN)/$(P3) $(BIN)/$(P4) $(BIN)/$(P5) 
-
+TARGETS=$(BIN)/$(P1) $(BIN)/$(P2) $(BIN)/$(P3) $(BIN)/$(P4)
 SRCFILES=$(wildcard $(SRC)/*.c)
-
 OBJFILES=$(OBJ)/argumentChecker.o $(OBJ)/utilities.o
 P1OBJS=$(OBJFILES) $(OBJ)/serialFilter.o
 P2OBJS=$(OBJFILES) $(OBJ)/ompFilter.o
 P3OBJS=$(OBJFILES) $(OBJ)/mpiFilter.o
 P4OBJS=$(OBJFILES) $(OBJ)/hybridFilter.o
-P5OBJS=$(OBJFILES) $(OBJ)/test.o $(OBJ)/unity.o
-
 HEADFILES=$(wildcard $(INC)/*.h)
 
 # Default build to make all executables
@@ -57,13 +53,9 @@ $(BIN)/$(P3): $(P3OBJS)
 $(BIN)/$(P4): $(P4OBJS)
 	$(MPICC) $(CCFLAGS) $^ -o $@ $(LIBS)
 
-# Testing
-$(BIN)/$(P5): $(P5OBJS)
-	$(MPICC) $(CCFLAGS) $^ -o $@ $(LIBS)
-
 # Source file checking and compiling
 $(OBJ)/%.o: $(SRC)/%.c
-	$(CC) -openmpi-mp $(CCFLAGS) $(INCLUDES) -c $< -o $@ $(LIBS)
+	$(MPICC) -openmpi-mp $(CCFLAGS) $(INCLUDES) -c $< -o $@ $(LIBS)
 
 .PHONY: clean rebuild cleanOut cleanTime
 
