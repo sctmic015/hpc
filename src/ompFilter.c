@@ -112,7 +112,7 @@ void filterImage(char filePath[], char outputPath[], char fileName[], long windo
         free(combinedOut);
         free(output);
 
-        printf("%s\n", "Done Image");
+        // printf("%s\n", "Done Image");
     }
     else
     {
@@ -122,9 +122,9 @@ void filterImage(char filePath[], char outputPath[], char fileName[], long windo
 
 int main(int argc, char *argv[])
 {
-    // time_t start, stop;
-    // start = time(NULL);
-
+    double start;
+    double end;
+    start = omp_get_wtime();
     if (isValidArguments(argc, argv))
     {
         // Skip the executable name
@@ -143,7 +143,7 @@ int main(int argc, char *argv[])
 
         for (int i = 0; i < count; i++)
         {
-            printf("%s\n", files[i]);
+            // printf("%s\n", files[i]);
             filterImage(inDir, outDir, files[i], windowSize);
         }
 
@@ -159,4 +159,6 @@ int main(int argc, char *argv[])
     {
         quitProgram();
     }
+    end = omp_get_wtime();
+    printf("%f\n", end - start);
 }
