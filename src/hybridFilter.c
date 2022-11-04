@@ -27,7 +27,7 @@
 #define STB_IMAGE_WRITE_IMPLEMENTATION
 #include "stb_image_write.h"
 
-void filterImage(char filePath[], char outputPath[], char fileName[], long windowSize, int rank, int nprocs, char* processor_name)
+void filterImage(char filePath[], char outputPath[], char fileName[], long windowSize, int rank, int nprocs, char *processor_name)
 {
     // Create combined input and output names
     char *combined = createCombinedName(filePath, fileName);
@@ -61,7 +61,7 @@ void filterImage(char filePath[], char outputPath[], char fileName[], long windo
         int imageSize = (int)windowSize * windowSize;
         unsigned char *output = (unsigned char *)malloc(width * height * 3 * sizeof(unsigned char));
         long long update = 0;
-        int iam = 0, np =1;
+        int iam = 0, np = 1;
 
 #pragma omp parallel
         {
@@ -70,7 +70,7 @@ void filterImage(char filePath[], char outputPath[], char fileName[], long windo
             {
                 np = omp_get_num_threads();
                 iam = omp_get_thread_num();
-                //printf("Hello from thread %d out of %d from process %d out of %d on %s\n", iam, np, rank, nprocs, processor_name);
+                // printf("Hello from thread %d out of %d from process %d out of %d on %s\n", iam, np, rank, nprocs, processor_name);
                 int windowR[imageSize];
                 int windowG[imageSize];
                 int windowB[imageSize];
@@ -117,7 +117,7 @@ void filterImage(char filePath[], char outputPath[], char fileName[], long windo
         free(combinedOut);
         free(output);
 
-        //printf("%s\n", "Done Image");
+        // printf("%s\n", "Done Image");
     }
     else
     {
@@ -125,26 +125,27 @@ void filterImage(char filePath[], char outputPath[], char fileName[], long windo
     }
 }
 
-
 int main(int argc, char *argv[])
 {
-    time_t start, stop;
-    start = time(NULL);
-
     if (isValidArguments(argc, argv))
     {
-        
+        double start, end;
 
         int rank, nprocs, namelen;
         char processor_name[MPI_MAX_PROCESSOR_NAME];
         int c = 0;
-        omp_set_num_threads(4);
 
         MPI_Init(&argc, &argv);
         MPI_Comm_size(MPI_COMM_WORLD, &nprocs);
         MPI_Comm_rank(MPI_COMM_WORLD, &rank);
         MPI_Get_processor_name(processor_name, &namelen);
-        //printf("nprocs: %d",nprocs);
+        // printf("nprocs: %d",nprocs);
+
+        if (rank == 0)
+        {
+            MPI_Barrier(MPI_COMM_WORLD);
+            start = MPI_Wtime();
+        }
 
         // Skip the executable name
         --argc;
@@ -161,32 +162,37 @@ int main(int argc, char *argv[])
         getListOfFiles(inDir, files);
         int counter, itstart, itstop;
 
-        //Assign Rows
+        // Assign Rows
         int amountPerRow[nprocs];
         int rows[nprocs];
 
         int initialSize = count / nprocs;
         int remainder = count % nprocs;
-        for (int i = 0; i < nprocs; i ++){
+        for (int i = 0; i < nprocs; i++)
+        {
             amountPerRow[i] = initialSize;
-            if (remainder != 0){
-                amountPerRow[i] ++;
-                remainder --;
+            if (remainder != 0)
+            {
+                amountPerRow[i]++;
+                remainder--;
             }
         }
         rows[0] = amountPerRow[0];
-        for (int i = 1; i < nprocs; i ++){
-            rows[i] = rows[i-1] + amountPerRow[i];
+        for (int i = 1; i < nprocs; i++)
+        {
+            rows[i] = rows[i - 1] + amountPerRow[i];
         }
-        if (rank == 0){
+        if (rank == 0)
+        {
             itstart = 0;
             itstop = rows[0];
-            //printf("rank %d start %d stop %d \n", rank, itstart, itstop);
+            // printf("rank %d start %d stop %d \n", rank, itstart, itstop);
         }
-        else{
+        else
+        {
             itstart = rows[rank - 1];
             itstop = rows[rank];
-            //printf("rank %d start %d stop %d \n", rank, itstart, itstop);
+            // printf("rank %d start %d stop %d \n", rank, itstart, itstop);
         }
         for (int i = itstart; i < itstop; i++)
         {
@@ -199,10 +205,14 @@ int main(int argc, char *argv[])
             free(files[i]);
         }
 
-        //printf("%d\n", c);
-        MPI_Finalize();     
-        //stop = time(NULL);
-        //printf("Run Time: %ld\n", stop - start);
+        if (rank == 0)
+        {
+            MPI_Barrier(MPI_COMM_WORLD);
+            end = MPI_Wtime();
+        }
+
+        MPI_Finalize();
+        printf("%f\n", end - start);
     }
     else
     {

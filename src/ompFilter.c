@@ -152,8 +152,6 @@ int main(int argc, char *argv[])
             free(files[i]);
         }
 
-        // stop = time(NULL);
-        // printf("Run Time: %ld\n", stop - start);
         end = omp_get_wtime();
         printf("%f\n", end - start);
     }
