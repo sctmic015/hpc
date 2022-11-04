@@ -26,11 +26,14 @@
 #define STB_IMAGE_WRITE_IMPLEMENTATION
 #include "stb_image_write.h"
 
-void filterImage(char filePath[], char outputPath[], char fileName[], long windowSize)
+void filterImage(char filePath[], char outputPath[], char fileName[], long windowSize, int rank, int nprocs)
 {
     // Create combined input and output names
     char *combined = createCombinedName(filePath, fileName);
-    char *combinedOut = createCombinedName(outputPath, fileName);
+    char *combinedOut = NULL;
+    
+    combinedOut = createCombinedName(outputPath, fileName);
+
     // Load image
     int width, height, bpp;
     unsigned char *img = stbi_load(combined, &width, &height, &bpp, 3);
@@ -57,11 +60,60 @@ void filterImage(char filePath[], char outputPath[], char fileName[], long windo
         // Implement median filter
         long windowOffset = (0.5) * windowSize - 0.5;
         int imageSize = (int)windowSize * windowSize;
-        unsigned char *output = (unsigned char *)malloc(width * height * 3 * sizeof(unsigned char));
+        
         long long update = 0;
 
-        for (int i = 0; i < height; i++)
+        // Loop to paralelise
+
+        unsigned char *output = (unsigned char *)malloc(width * height * 3 * sizeof(unsigned char));
+        int counter, start, stop, nloops, finalStart, finalStop, mylen;
+        unsigned char *outputSubset = NULL;
+        bool option = false;
+
+        //Assign Rows
+        int* amountPerRow = (int *) malloc(nprocs * sizeof(int));
+        int* rows = (int *) malloc(nprocs * sizeof(int)); 
+
+        int initialSize = height / nprocs;
+        int remainder = height % nprocs;
+        if (remainder == 0){
+             option = true;
+        }
+        for (int i = 0; i < nprocs; i ++){
+            amountPerRow[i] = initialSize;
+            if (remainder != 0){
+                amountPerRow[i] ++;
+                remainder --;
+            }
+        }
+        rows[0] = amountPerRow[0];
+        for (int i = 1; i < nprocs; i ++){
+            rows[i] = rows[i-1] + amountPerRow[i]; 
+            //printf("Row Sum rank %d sum %d \n", rank, rows[i]);
+        }
+
+            //         for (int i = 0; i < nprocs; i ++){
+            //     printf("Row Sum rank %d sum %d \n", rank, amountPerRow[i]);
+            // }
+        MPI_Barrier(MPI_COMM_WORLD);
+        if (rank == 0){
+            start = 0;
+            stop = rows[0];
+            //printf("rank %d start %d stop %d \n", rank, start, stop);
+            outputSubset = (unsigned char *)malloc(width * amountPerRow[0] * 3 * sizeof(unsigned char));
+            mylen = amountPerRow[0]*width*3;
+        }
+        else{
+            start = rows[rank - 1];
+            stop = rows[rank];
+            //printf("rank %d start %d stop %d \n", rank, start, stop);
+            outputSubset = (unsigned char *)malloc(width * amountPerRow[rank] * 3 * sizeof(unsigned char));
+            mylen = amountPerRow[rank]*width*3;
+        }
+        nloops = 0;
+        for (int i = start; i < stop; i++)
         {
+            ++nloops;
             int windowR[imageSize];
             int windowG[imageSize];
             int windowB[imageSize];
@@ -90,37 +142,102 @@ void filterImage(char filePath[], char outputPath[], char fileName[], long windo
                         count++;
                     }
                 }
-
-                int countVal = i * width * 3 + j * 3;
-                output[countVal] = (char)medianFliter(windowR, windowSize * windowSize);
-                output[countVal + 1] = (char)medianFliter(windowG, windowSize * windowSize);
-                output[countVal + 2] = (char)medianFliter(windowB, windowSize * windowSize);
+                
+                int countVal = (i-start) * width * 3 + j * 3;
+                outputSubset[countVal] = (char)medianFliter(windowR, windowSize * windowSize);
+                outputSubset[countVal + 1] = (char)medianFliter(windowG, windowSize * windowSize);
+                outputSubset[countVal + 2] = (char)medianFliter(windowB, windowSize * windowSize);
             }
         }
-
+        
+        //printf("Procees %d performed %d iterations pof the loop. \n", rank, nloops);
         free(r);
         free(g);
         free(b);
 
-        stbi_write_jpg(combinedOut, width, height, 3, output, 50);
+        if (option){
+            MPI_Gather(outputSubset, (width*height*3)/(nprocs), MPI_UNSIGNED_CHAR, output, (width*height*3)/(nprocs), MPI_UNSIGNED_CHAR, 0, MPI_COMM_WORLD);
+            //printf("Ideal Case");
+        }
+        else {
+            int *displs = NULL;    
+            int *recCounts = NULL;
+            
+            if (rank == 0){
+                displs = malloc(nprocs * sizeof(int));
+                recCounts = malloc(nprocs * sizeof(int));
+                displs[0] = 0;
+                recCounts[0] = (width*amountPerRow[0]*3);
+                //printf("Displacement rank %d = %d and counter = %d\n", rank, displs[rank], counter);
+                //printf("RecCounts rank %d = %d and counter = %d\n", rank, recCounts[rank], counter);
+                for (int i = 1; i < nprocs; i ++){
+                    displs[i] = displs[i-1]+recCounts[i-1];
+                    recCounts[i] = width * amountPerRow[i]*3;
+                    //printf("Displacement rank %d = %d and counter = %d\n", i, displs[i], counter);
+                    //printf("RecCounts rank %d = %d and counter = %d\n", i, recCounts[i], counter);
+
+                    // if (i == nprocs-1){
+                    //     displs[i] = i * (width*counter*3);
+                    //     recCounts[i] = width * (finalStop - finalStart) * 3;
+                    //     printf("Displacement rank %d = %d and counter = %d\n", i, displs[i], counter);
+                    //     printf("RecCounts rank %d = %d and counter = %d\n", i, recCounts[i], counter);
+                    // }
+                    // else {
+                    //     displs[i] = i * (width*counter*3);
+                    //     recCounts[i] = width * counter * 3;
+                    //     printf("Displacement rank %d = %d and counter = %d\n", i, displs[i], counter);
+                    //     printf("RecCounts rank %d = %d and counter = %d\n", i, recCounts[i], counter);
+                    // }
+                }
+
+            }
+            //MPI_Barrier(MPI_COMM_WORLD);
+            //exit(1);
+            // else if (rank!= nprocs -1){
+            //     displs[rank] = rank * (width*counter*3);
+            //     recCounts[rank] = width * counter * 3;
+                
+            //     printf("Displacement rank %d = %d and counter = %d\n", rank, displs[rank], counter);
+            //     printf("RecCounts rank %d = %d and counter = %d\n", rank, recCounts[rank], counter);
+            // }
+            // else {
+            //     displs[rank] = rank * (width*counter*3);
+            //     printf("Displacement rank %d = %d and counter = %d\n", rank, displs[rank], counter);
+            //     recCounts[rank] = width * (finalStop - finalStart) * 3;
+            //     printf("RecCounts rank %d = %d and counter = %d\n", rank, recCounts[rank], counter);
+            // }
+            //MPI_Barrier(MPI_COMM_WORLD);
+            MPI_Gatherv(outputSubset, mylen, MPI_UNSIGNED_CHAR, output, recCounts, displs,MPI_UNSIGNED_CHAR, 0, MPI_COMM_WORLD);
+            free(displs);
+            free(recCounts);
+        }
+        MPI_Barrier(MPI_COMM_WORLD);
+        if (rank == 0){
+            stbi_write_jpg(combinedOut, width, height, 3, output, 50);
+        }
+        //MPI_Barrier(MPI_COMM_WORLD);
         stbi_image_free(img);
         free(combinedOut);
         free(output);
+        free(outputSubset);
+        free(amountPerRow);
+        free(rows);
+        //printf("Rank Test %d \n", rank);
 
-        // printf("%s\n", "Done Image");
+        //printf("%s %d\n", "Done Image. Rank = ", rank);
     }
     else
     {
-        printf("Error in loading the image\n");
+        //printf("Error in loading the image\n");
     }
 }
 
 int main(int argc, char *argv[])
 {
 
+
     if (isValidArguments(argc, argv))
     {
-        double start, end;
         // Setup MPI
         int rank, nprocs;
         int *sendcounts;
@@ -128,13 +245,10 @@ int main(int argc, char *argv[])
 
         MPI_Init(&argc, &argv);
         MPI_Comm_rank(MPI_COMM_WORLD, &rank);
+        //printf("%d\n",rank);
         MPI_Comm_size(MPI_COMM_WORLD, &nprocs);
-
-        MPI_Barrier(MPI_COMM_WORLD);
-        if (rank == 0)
-        {
-            start = MPI_Wtime();
-        }
+        //printf("%d\n", nprocs);
+        
 
         // Skip the executable name
         --argc;
@@ -150,58 +264,18 @@ int main(int argc, char *argv[])
         char *files[count];
         getListOfFiles(inDir, files);
 
-        // Assign Rows
-        int itstart, itstop;
-        int amountPerRow[nprocs];
-        int rows[nprocs];
-
-        int initialSize = count / nprocs;
-        int remainder = count % nprocs;
-        for (int i = 0; i < nprocs; i++)
+        for (int i = 0; i < count; i++)
         {
-            amountPerRow[i] = initialSize;
-            if (remainder != 0)
-            {
-                amountPerRow[i]++;
-                remainder--;
-            }
-        }
-        rows[0] = amountPerRow[0];
-        for (int i = 1; i < nprocs; i++)
-        {
-            rows[i] = rows[i - 1] + amountPerRow[i];
-        }
-        if (rank == 0)
-        {
-            itstart = 0;
-            itstop = rows[0];
-            // printf("rank %d start %d stop %d \n", rank, itstart, itstop);
-        }
-        else
-        {
-            itstart = rows[rank - 1];
-            itstop = rows[rank];
-            // printf("rank %d start %d stop %d \n", rank, itstart, itstop);
+            //printf("%s \n", files[i]);
+            MPI_Barrier(MPI_COMM_WORLD);
+            filterImage(inDir, outDir, files[i], windowSize, rank, nprocs);
+            //MPI_Barrier(MPI_COMM_WORLD);
         }
 
-        for (int i = itstart; i < itstop; i++)
-        {
-            filterImage(inDir, outDir, files[i], windowSize);
-        }
-
-        MPI_Barrier(MPI_COMM_WORLD);
         for (int i = 0; i < count; i++)
         {
             free(files[i]);
         }
-
-        MPI_Barrier(MPI_COMM_WORLD);
-        if (rank == 0)
-        {
-            end = MPI_Wtime();
-            printf("%f\n", end - start);
-        }
-
         MPI_Finalize();
     }
     else
