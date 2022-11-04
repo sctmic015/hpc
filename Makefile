@@ -24,19 +24,17 @@ P2=ompFilter
 P3=mpiFilter
 P4=hybridFilter
 P5=test
-# P6=unity
 TARGETS=$(BIN)/$(P1) $(BIN)/$(P2) $(BIN)/$(P3) $(BIN)/$(P4) $(BIN)/$(P5) 
-# $(BIN)/$(P6)
+
 SRCFILES=$(wildcard $(SRC)/*.c)
-# might need to add unity obj
-# OBJFILES=$(OBJ)/argumentChecker.o $(OBJ)/utilities.o
+
 OBJFILES=$(OBJ)/argumentChecker.o $(OBJ)/utilities.o
 P1OBJS=$(OBJFILES) $(OBJ)/serialFilter.o
 P2OBJS=$(OBJFILES) $(OBJ)/ompFilter.o
 P3OBJS=$(OBJFILES) $(OBJ)/mpiFilter.o
 P4OBJS=$(OBJFILES) $(OBJ)/hybridFilter.o
 P5OBJS=$(OBJFILES) $(OBJ)/test.o $(OBJ)/unity.o
-# P6OBJS=$(OBJFILES) $(OBJ)/unity.o
+
 HEADFILES=$(wildcard $(INC)/*.h)
 
 # Default build to make all executables
@@ -59,7 +57,7 @@ $(BIN)/$(P3): $(P3OBJS)
 $(BIN)/$(P4): $(P4OBJS)
 	$(MPICC) $(CCFLAGS) $^ -o $@ $(LIBS)
 
-# Test
+# Testing
 $(BIN)/$(P5): $(P5OBJS)
 	$(MPICC) $(CCFLAGS) $^ -o $@ $(LIBS)
 
