@@ -107,7 +107,7 @@ void filterImage(char filePath[], char outputPath[], char fileName[], long windo
         free(combinedOut);
         free(output);
 
-        printf("%s\n", "Done Image");
+        //printf("%s\n", "Done Image");
     }
     else
     {
@@ -147,9 +147,9 @@ int main(int argc, char *argv[])
         getListOfFiles(inDir, files);
 
         //Assign Rows
-        int counter, itstart, itstop;
-        int* amountPerRow = (int *) malloc(nprocs * sizeof(int));
-        int* rows = (int *) malloc(nprocs * sizeof(int)); 
+        int itstart, itstop;
+        int amountPerRow[nprocs];
+        int rows[nprocs];
 
         int initialSize = count / nprocs;
         int remainder = count % nprocs;
@@ -167,12 +167,12 @@ int main(int argc, char *argv[])
         if (rank == 0){
             itstart = 0;
             itstop = rows[0];
-            printf("rank %d start %d stop %d \n", rank, itstart, itstop);
+            //printf("rank %d start %d stop %d \n", rank, itstart, itstop);
         }
         else{
             itstart = rows[rank - 1];
             itstop = rows[rank];
-            printf("rank %d start %d stop %d \n", rank, itstart, itstop);
+            //printf("rank %d start %d stop %d \n", rank, itstart, itstop);
         }
 
         for (int i = itstart; i < itstop; i++)
@@ -186,8 +186,8 @@ int main(int argc, char *argv[])
             free(files[i]);
         }
         MPI_Finalize();
-        stop = time(NULL);
-        printf("Run Time: %ld\n", stop - start);
+        //stop = time(NULL);
+        //printf("Run Time: %ld\n", stop - start);
     }
     else
     {

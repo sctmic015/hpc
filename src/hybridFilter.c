@@ -117,7 +117,7 @@ void filterImage(char filePath[], char outputPath[], char fileName[], long windo
         free(combinedOut);
         free(output);
 
-        printf("%s\n", "Done Image");
+        //printf("%s\n", "Done Image");
     }
     else
     {
@@ -144,7 +144,7 @@ int main(int argc, char *argv[])
         MPI_Comm_size(MPI_COMM_WORLD, &nprocs);
         MPI_Comm_rank(MPI_COMM_WORLD, &rank);
         MPI_Get_processor_name(processor_name, &namelen);
-        printf("nprocs: %d",nprocs);
+        //printf("nprocs: %d",nprocs);
 
         // Skip the executable name
         --argc;
@@ -162,8 +162,8 @@ int main(int argc, char *argv[])
         int counter, itstart, itstop;
 
         //Assign Rows
-        int* amountPerRow = (int *) malloc(nprocs * sizeof(int));
-        int* rows = (int *) malloc(nprocs * sizeof(int)); 
+        int amountPerRow[nprocs];
+        int rows[nprocs];
 
         int initialSize = count / nprocs;
         int remainder = count % nprocs;
@@ -181,12 +181,12 @@ int main(int argc, char *argv[])
         if (rank == 0){
             itstart = 0;
             itstop = rows[0];
-            printf("rank %d start %d stop %d \n", rank, itstart, itstop);
+            //printf("rank %d start %d stop %d \n", rank, itstart, itstop);
         }
         else{
             itstart = rows[rank - 1];
             itstop = rows[rank];
-            printf("rank %d start %d stop %d \n", rank, itstart, itstop);
+            //printf("rank %d start %d stop %d \n", rank, itstart, itstop);
         }
         for (int i = itstart; i < itstop; i++)
         {
@@ -199,10 +199,10 @@ int main(int argc, char *argv[])
             free(files[i]);
         }
 
-        printf("%d\n", c);
+        //printf("%d\n", c);
         MPI_Finalize();     
-        stop = time(NULL);
-        printf("Run Time: %ld\n", stop - start);
+        //stop = time(NULL);
+        //printf("Run Time: %ld\n", stop - start);
     }
     else
     {
