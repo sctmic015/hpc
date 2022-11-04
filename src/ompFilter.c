@@ -122,11 +122,11 @@ void filterImage(char filePath[], char outputPath[], char fileName[], long windo
 
 int main(int argc, char *argv[])
 {
-    double start;
-    double end;
-    start = omp_get_wtime();
     if (isValidArguments(argc, argv))
     {
+        double start;
+        double end;
+        start = omp_get_wtime();
         // Skip the executable name
         --argc;
         ++argv;
@@ -154,11 +154,11 @@ int main(int argc, char *argv[])
 
         // stop = time(NULL);
         // printf("Run Time: %ld\n", stop - start);
+        end = omp_get_wtime();
+        printf("%f\n", end - start);
     }
     else
     {
         quitProgram();
     }
-    end = omp_get_wtime();
-    printf("%f\n", end - start);
 }
