@@ -107,7 +107,7 @@ void filterImage(char filePath[], char outputPath[], char fileName[], long windo
         free(combinedOut);
         free(output);
 
-        //printf("%s\n", "Done Image");
+        // printf("%s\n", "Done Image");
     }
     else
     {
@@ -118,11 +118,9 @@ void filterImage(char filePath[], char outputPath[], char fileName[], long windo
 int main(int argc, char *argv[])
 {
 
-
     if (isValidArguments(argc, argv))
     {
-        time_t start, stop;
-        start = time(NULL);
+        double start, end;
         // Setup MPI
         int rank, nprocs;
         int *sendcounts;
@@ -131,7 +129,13 @@ int main(int argc, char *argv[])
         MPI_Init(&argc, &argv);
         MPI_Comm_rank(MPI_COMM_WORLD, &rank);
         MPI_Comm_size(MPI_COMM_WORLD, &nprocs);
-        
+
+        MPI_Barrier(MPI_COMM_WORLD);
+        if (rank == 0)
+        {
+            start = MPI_Wtime();
+        }
+
         // Skip the executable name
         --argc;
         ++argv;
@@ -146,33 +150,38 @@ int main(int argc, char *argv[])
         char *files[count];
         getListOfFiles(inDir, files);
 
-        //Assign Rows
+        // Assign Rows
         int itstart, itstop;
         int amountPerRow[nprocs];
         int rows[nprocs];
 
         int initialSize = count / nprocs;
         int remainder = count % nprocs;
-        for (int i = 0; i < nprocs; i ++){
+        for (int i = 0; i < nprocs; i++)
+        {
             amountPerRow[i] = initialSize;
-            if (remainder != 0){
-                amountPerRow[i] ++;
-                remainder --;
+            if (remainder != 0)
+            {
+                amountPerRow[i]++;
+                remainder--;
             }
         }
         rows[0] = amountPerRow[0];
-        for (int i = 1; i < nprocs; i ++){
-            rows[i] = rows[i-1] + amountPerRow[i]; 
+        for (int i = 1; i < nprocs; i++)
+        {
+            rows[i] = rows[i - 1] + amountPerRow[i];
         }
-        if (rank == 0){
+        if (rank == 0)
+        {
             itstart = 0;
             itstop = rows[0];
-            //printf("rank %d start %d stop %d \n", rank, itstart, itstop);
+            // printf("rank %d start %d stop %d \n", rank, itstart, itstop);
         }
-        else{
+        else
+        {
             itstart = rows[rank - 1];
             itstop = rows[rank];
-            //printf("rank %d start %d stop %d \n", rank, itstart, itstop);
+            // printf("rank %d start %d stop %d \n", rank, itstart, itstop);
         }
 
         for (int i = itstart; i < itstop; i++)
@@ -185,9 +194,15 @@ int main(int argc, char *argv[])
         {
             free(files[i]);
         }
+
+        MPI_Barrier(MPI_COMM_WORLD);
+        if (rank == 0)
+        {
+            end = MPI_Wtime();
+            printf("%f\n", end - start);
+        }
+
         MPI_Finalize();
-        //stop = time(NULL);
-        //printf("Run Time: %ld\n", stop - start);
     }
     else
     {
