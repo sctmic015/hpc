@@ -35,4 +35,8 @@ An example execution might look like:
 `./bin/serialFilter data out 5` 
 
 Further, a bash script is supplied for automated running of each program in order to provide the necessary statistical confidence 
-in a varied set of parameter results such that speedup graphs over the changed parameters could be plotted and analysed.
+in a varied set of parameter results such that speedup graphs over the changed parameters could be plotted and analysed. 
+Note that most of this is commented out as the flags were altered interactively as we ran the programs for benchmark analysis so 
+it won't run perfectly in its current form. For testing parallel versions of the code against the serial version, imageTest.py inside 
+of the 'test' directory contains the code necessary to compare a test suite of output images. These are taken from the data 
+sub-directory of test and are outputted to their program form sub-directories which have been left in-place for ease of local verification. 
