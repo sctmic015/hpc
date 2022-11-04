@@ -141,9 +141,9 @@ int main(int argc, char *argv[])
         MPI_Get_processor_name(processor_name, &namelen);
         // printf("nprocs: %d",nprocs);
 
+        MPI_Barrier(MPI_COMM_WORLD);
         if (rank == 0)
         {
-            MPI_Barrier(MPI_COMM_WORLD);
             start = MPI_Wtime();
         }
 
@@ -205,14 +205,14 @@ int main(int argc, char *argv[])
             free(files[i]);
         }
 
+        MPI_Barrier(MPI_COMM_WORLD);
         if (rank == 0)
         {
-            MPI_Barrier(MPI_COMM_WORLD);
             end = MPI_Wtime();
+            printf("%f\n", end - start);
         }
 
         MPI_Finalize();
-        printf("%f\n", end - start);
     }
     else
     {
