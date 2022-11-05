@@ -16,7 +16,7 @@ OUT=out
 CC=gcc
 MPICC=mpicc
 INCLUDES=-I$(INC)
-CCFLAGS=-fopenmp
+CCFLAGS=-fopenmp -std=c99
 LIBS=-lm
 
 # List of files and paths used, stored as variables
