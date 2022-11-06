@@ -31,11 +31,11 @@ def readData():
 
 
 def ompSpeedUpGraphs(serialMean, ompMean):
-    plt.rcParams['figure.figsize'] = [12,5]
+    plt.rcParams['figure.figsize'] = [18,5]
     plt.rcParams['figure.dpi'] = 300
-    dataTest = ['3', '9']
+    dataTest = ['3', '9', '15']
     # all speed-ups for window size 9
-    fig, ax = plt.subplots(ncols=2)
+    fig, ax = plt.subplots(ncols=3)
     count = 0
     for data in dataTest:
         small = np.array([1, serialMean['serialSmall' + data] / ompMean['ompSmall20' + data],
@@ -65,7 +65,7 @@ def ompSpeedUpGraphs(serialMean, ompMean):
         ax[count].set_xticks(np.arange(4), ["1", "20", "40", "60"])
         ax[count].legend(["Small", "Medium", "Large", "SmallSize", "LargeSize"])
         count += 1
-    # plt.show()
+    #plt.show()
     plt.savefig("graphs/OpenMPResults.jpg")
     print(serialMean['serialLargesize9'] / ompMean['ompLargesize609'])
 
