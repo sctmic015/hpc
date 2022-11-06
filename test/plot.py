@@ -135,21 +135,27 @@ def mpiSpeedUpGraphs(serialMean, mpiMean):
             print("Small", len(small))
             print("med", len(medium))
             print("large", len(large))
-            # print("small")
-            # print(small)
-            # print("medium")
-            # print(medium)
-            # print("large")
-            # print(large)
+            print("largesize", len(largeSize))
+            print("smallsize", len(smallSize))
             
+            
+            print("small")
+            print(small)
+            print("medium")
+            print(medium)
+            print("large")
+            print(large)
+            print("largesiz")
+            print(largeSize)
+            print("smallesiz")
+            print(smallSize)
             
         
-            
-            ax[countCol].plot(small)
-            ax[countCol].plot(medium)
-            ax[countCol].plot(large)
-            ax[countCol].plot(smallSize)
-            ax[countCol].plot(largeSize)
+            ax[countCol].plot(small, 'ro')
+            ax[countCol].plot(medium, 'bo')
+            ax[countCol].plot(large, 'go')
+            ax[countCol].plot(smallSize, 'yo')
+            ax[countCol].plot(largeSize, 'ko')
             
             ax[countCol].set_title(("MPI Speed Up for Window Size " + data +" and nodes " + node))
             ax[countCol].set_ylabel("Speedup")
@@ -158,6 +164,7 @@ def mpiSpeedUpGraphs(serialMean, mpiMean):
             ax[countCol].legend(["Small", "Medium", "Large", "SmallSize", "LargeSize"])
             
             countCol += 1
+        plt.show()
         plt.savefig("./test/graphs/MPIResults"+node+".jpg")
 
                         
