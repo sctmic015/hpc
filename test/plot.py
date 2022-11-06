@@ -114,15 +114,24 @@ def mpiSpeedUpGraphs(serialMean, mpiMean):
             for core in cores:
                 if 'MPISmall'+ core + '_' + node + "_" + data in mpiMean:
                     small = np.append(small, [serialMean['serialSmall' + data] / mpiMean['MPISmall'+ core + '_' + node + "_" + data]])
+                else:
+                    small = np.append(small, [0])
                 if 'MPIMedium'+ core + '_' + node + "_" + data in mpiMean:
                     medium = np.append(medium, [serialMean['serialMedium' + data] / mpiMean['MPIMedium'+ core + '_' + node + "_" + data]])
+                else:
+                    medium = np.append(medium, [0])
                 if 'MPILarge'+ core + '_' + node + "_" + data in mpiMean:
                     large = np.append(large, [serialMean['serialLarge' + data] / mpiMean['MPILarge'+ core + '_' + node + "_" + data]])
+                else:
+                    large = np.append(large, [0])
                 if 'MPILargesize'+ core + '_' + node + "_" + data in mpiMean:
                     largeSize = np.append(largeSize, [serialMean['serialLargesize' + data] / mpiMean['MPILargesize'+ core + '_' + node + "_" + data]])
+                else:
+                    largeSize = np.append(largeSize, [0])
                 if 'MPISmallsize'+ core + '_' + node + "_" + data in mpiMean:
                     smallSize = np.append(smallSize, [serialMean['serialSmallsize' + data] / mpiMean['MPISmallsize'+ core + '_'  + node + "_" + data]])
-                    
+                else:
+                    smallSize = np.append(smallSize, [0])    
             print("Small", len(small))
             print("med", len(medium))
             print("large", len(large))
