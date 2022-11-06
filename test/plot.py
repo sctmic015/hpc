@@ -58,20 +58,23 @@ def ompSpeedUpGraphs(serialMean, ompMean):
     for data in dataTest:
         small = np.array([1, serialMean['serialSmall' + data] / ompMean['ompSmall20' + data],
                           serialMean['serialSmall' + data] / ompMean['ompSmall40' + data],
-                          serialMean['serialSmall' + data] / ompMean['ompSmall60' + data]])
+                          serialMean['serialSmall' + data] / ompMean['ompSmall60' + data]], 'float64')
         medium = np.array([1, serialMean['serialMedium' + data] / ompMean['ompMedium20' + data],
                            serialMean['serialMedium' + data] / ompMean['ompMedium40' + data],
-                           serialMean['serialMedium' + data] / ompMean['ompMedium60' + data]])
+                           serialMean['serialMedium' + data] / ompMean['ompMedium60' + data]], 'float64')
         large = np.array([1, serialMean['serialLarge' + data] / ompMean['ompLarge20' + data],
                           serialMean['serialLarge' + data] / ompMean['ompLarge40' + data],
-                          serialMean['serialLarge' + data] / ompMean['ompLarge60' + data]])
+                          serialMean['serialLarge' + data] / ompMean['ompLarge60' + data]], 'float64')
         largeSize = np.array([1, serialMean['serialLargesize' + data] / ompMean['ompLargesize20' + data],
                               serialMean['serialLargesize' + data] / ompMean['ompLargesize40' + data],
-                              serialMean['serialLargesize' + data] / ompMean['ompLargesize60' + data]])
+                              serialMean['serialLargesize' + data] / ompMean['ompLargesize60' + data]], 'float64')
         smallSize = np.array([1, serialMean['serialSmallsize' + data] / ompMean['ompSmallsize20' + data],
                               serialMean['serialSmallsize' + data] / ompMean['ompSmallsize40' + data],
-                              serialMean['serialSmallsize' + data] / ompMean['ompSmallsize60' + data]])
+                              serialMean['serialSmallsize' + data] / ompMean['ompSmallsize60' + data]], 'float64')
 
+        # print(small)
+        # print(medium)
+        # print(large)
         ax[count].plot(small)
         ax[count].plot(medium)
         ax[count].plot(large)
@@ -88,7 +91,7 @@ def ompSpeedUpGraphs(serialMean, ompMean):
     print(serialMean['serialLargesize15'] / ompMean['ompLargesize6015'])
 
 def mpiSpeedUpGraphs(serialMean, mpiMean):
-    plt.rcParams['figure.figsize'] = [18,15]
+    plt.rcParams['figure.figsize'] = [18,5]
     plt.rcParams['figure.dpi'] = 300
     
     windows = ['3', '9', '15']
@@ -99,24 +102,39 @@ def mpiSpeedUpGraphs(serialMean, mpiMean):
     
     # MAKE A GRAPH PER NODE
     for node in nodes:
+        print("\nPlotting node", node, "...")
         countCol = 0
-        small = []
-        medium = []
-        large = []
-        largeSize = []
-        smallSize = []
         for data in windows:
+            print("Plotting window size", data, "...")
+            small = np.array([1])
+            medium = np.array([1])
+            large = np.array([1])
+            largeSize = np.array([1])
+            smallSize = np.array([1])
             for core in cores:
                 if 'MPISmall'+ core + '_' + node + "_" + data in mpiMean:
-                    small.append(np.array([1, serialMean['serialSmall' + data] / mpiMean['MPISmall'+ core + '_' + node + "_" + data]]))
+                    small = np.append(small, [serialMean['serialSmall' + data] / mpiMean['MPISmall'+ core + '_' + node + "_" + data]])
                 if 'MPIMedium'+ core + '_' + node + "_" + data in mpiMean:
-                    medium.append(np.array([1, serialMean['serialMedium' + data] / mpiMean['MPIMedium'+ core + '_' + node + "_" + data]]))
+                    medium = np.append(medium, [serialMean['serialMedium' + data] / mpiMean['MPIMedium'+ core + '_' + node + "_" + data]])
                 if 'MPILarge'+ core + '_' + node + "_" + data in mpiMean:
-                    large.append(np.array([1, serialMean['serialLarge' + data] / mpiMean['MPILarge'+ core + '_' + node + "_" + data]]))
+                    large = np.append(large, [serialMean['serialLarge' + data] / mpiMean['MPILarge'+ core + '_' + node + "_" + data]])
                 if 'MPILargesize'+ core + '_' + node + "_" + data in mpiMean:
-                    largeSize.append(np.array([1, serialMean['serialLargesize' + data] / mpiMean['MPILargesize'+ core + '_' + node + "_" + data]]))
+                    largeSize = np.append(largeSize, [serialMean['serialLargesize' + data] / mpiMean['MPILargesize'+ core + '_' + node + "_" + data]])
                 if 'MPISmallsize'+ core + '_' + node + "_" + data in mpiMean:
-                    smallSize.append(np.array([1, serialMean['serialSmallsize' + data] / mpiMean['MPISmallsize'+ core + '_'  + node + "_" + data]]))
+                    smallSize = np.append(smallSize, [serialMean['serialSmallsize' + data] / mpiMean['MPISmallsize'+ core + '_'  + node + "_" + data]])
+                    
+            print("Small", len(small))
+            print("med", len(medium))
+            print("large", len(large))
+            # print("small")
+            # print(small)
+            # print("medium")
+            # print(medium)
+            # print("large")
+            # print(large)
+            
+            
+        
             
             ax[countCol].plot(small)
             ax[countCol].plot(medium)
