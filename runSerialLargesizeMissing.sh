@@ -2,13 +2,13 @@
 #SBATCH --partition=curie
 #SBATCH --time=12:00:00
 #SBATCH --nodes=1 --ntasks=2
-#SBATCH --job-name="serial"
+#SBATCH --job-name="serialLSize15"
 #SBATCH --mail-user=myxjar002@myuct.ac.za
 #SBATCH --mail-type=ALL
 
 module load mpi/openmpi-4.0.1
 
-filterSizes=(9)
+filterSizes=(15)
 
 for filterSize in "${filterSizes[@]}"
 do
