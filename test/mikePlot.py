@@ -120,5 +120,5 @@ def mpiSpeedUpGraphs(serialMean, mpiMean):
     plt.savefig("graphs/MPIResults.jpg")
    # print(serialMean['serialLargesize15'] / ompMean['ompLargesize6015'])
 
-serialData, ompData, serialMean, ompMean = readData()
+serialData, ompData, serialMean, ompMean, mpiData, mpiMean = readData()
 ompSpeedUpGraphs(serialMean, ompMean)
